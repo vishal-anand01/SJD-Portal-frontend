@@ -1,0 +1,13 @@
+/* frontend/src/assets/styles/dashboard.css */
+.MuiDrawer-paper {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  transition: width 0.3s ease !important;
+}
+.MuiDrawer-paper::-webkit-scrollbar {
+  width: 6px;
+}
+.MuiDrawer-paper::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}

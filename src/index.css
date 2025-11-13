@@ -1,0 +1,67 @@
+/* Path: frontend/src/index.css */
+
+/* base */
+:root{
+  --accent:#2e6df6;
+  --muted:#6b7280;
+  --card-bg: linear-gradient(180deg, #ffffff, #fbfdff);
+}
+
+/* Body */
+body {
+  background: linear-gradient(180deg,#f7f9ff 0%, #ffffff 100%);
+  font-family: Inter, Roboto, "Segoe UI", sans-serif;
+  color: #17233d;
+}
+
+/* Header */
+.sjd-header {
+  background: linear-gradient(90deg, rgba(255,255,255,0.9), rgba(245,250,255,0.9));
+  border-bottom: 1px solid rgba(32,41,59,0.04);
+}
+.sjd-header .brand .accent { color: var(--accent); }
+.sjd-header .subtext { color: var(--muted); font-size: 11px; }
+
+/* Sidebar */
+.sjd-sidebar {
+  width: 260px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  background: linear-gradient(180deg,#ffffff 0%, #f4f7ff 100%);
+  border-right: 1px solid rgba(32,41,59,0.04);
+  padding-top: 64px; /* header height */
+  z-index: 1000;
+}
+@media (max-width: 991px){
+  .sjd-sidebar { display: none; } /* mobile: hide fixed sidebar */
+}
+.sidebar-inner { display:flex; flex-direction:column; height:100%; }
+.logo-area { display:flex; align-items:center; gap:8px; }
+.menu-section .section-title { font-size:12px; color: var(--muted); padding:8px 12px; text-transform:uppercase; font-weight:700; }
+.nav-item-custom { color:#334155; padding:10px 12px; border-radius:8px; margin:4px 6px; transition: all .15s ease; display:flex; align-items:center; }
+.nav-item-custom .icon { color:var(--accent); display:flex; align-items:center; }
+.nav-item-custom:hover { background: rgba(46,109,246,0.06); transform: translateY(-1px); }
+.nav-item-custom.active { background: linear-gradient(90deg, rgba(46,109,246,0.08), rgba(124,77,255,0.03)); border-left:4px solid var(--accent); }
+
+/* Dashboard main area adjustments */
+.sjd-dashboard-main.mobile { padding: 1rem; margin-left:0 !important; }
+
+/* Public Navbar */
+.public-navbar { background: linear-gradient(90deg,#ffffff, #f9fbff); }
+.public-navbar .brand-title { font-weight:700; color:var(--accent); }
+
+/* Footer */
+.footer-gradient { background: linear-gradient(180deg,#ffffff 0%, #f1f6ff 100%); border-top: 1px solid rgba(32,41,59,0.04); }
+
+/* small helpers */
+.shadow-sm { box-shadow: 0 6px 18px rgba(8,10,25,0.04) !important; }
+.btn-primary { background-color: var(--accent); border-color: var(--accent); }
+
+/* mobile friendly utilities */
+@media (max-width: 575px) {
+  .sjd-header .brand .accent { display:block; }
+  .profile-info { display:none !important; }
+}
