@@ -103,7 +103,7 @@ export default function HeaderNavbar() {
                 color: "#0f172a",
               }}
             >
-              जनता दरबार
+              सरकार जनता के द्वार  
             </Typography>
             <Typography
               variant="body2"
@@ -113,7 +113,7 @@ export default function HeaderNavbar() {
                 letterSpacing: "0.4px",
               }}
             >
-              SJD-Portal — Smart Governance Platform
+              Sarkar Janata ke Dwaar — Smart Governance Platform
             </Typography>
           </Box>
         </Box>

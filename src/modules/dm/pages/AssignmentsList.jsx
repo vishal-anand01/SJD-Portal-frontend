@@ -2,12 +2,16 @@ import React, { useEffect, useState, useMemo } from "react";
 import dayjs from "dayjs";
 import axios from "../../../api/axiosConfig";
 import ViewAssignmentModal from "../models/ViewAssignmentModal";
+import DMVisitStatusModal from "../models/DMVisitStatusModal"
 
 export default function AssignmentsList() {
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(null);
   const [open, setOpen] = useState(false);
+
+  const [statusOpen, setStatusOpen] = useState(false);
+  const [statusAssignment, setStatusAssignment] = useState(null);
 
   // pagination state
   const [page, setPage] = useState(0);
@@ -41,11 +45,19 @@ export default function AssignmentsList() {
     setOpen(false);
   };
 
+  const handleVisitStatus = (a) => {
+    setStatusAssignment(a);
+    setStatusOpen(true);
+  };
+
   const total = assignments.length;
   const start = page * pageSize;
   const end = Math.min(start + pageSize, total);
 
-  const pageData = useMemo(() => assignments.slice(start, end), [assignments, start, end]);
+  const pageData = useMemo(
+    () => assignments.slice(start, end),
+    [assignments, start, end]
+  );
 
   const nextPage = () => {
     if ((page + 1) * pageSize < total) setPage((p) => p + 1);
@@ -63,10 +75,10 @@ export default function AssignmentsList() {
 
   const priorityBadge = (p) => {
     if (p === "High") return "badge bg-danger-subtle text-danger fw-semibold";
-    if (p === "Medium") return "badge bg-warning-subtle text-warning fw-semibold";
+    if (p === "Medium")
+      return "badge bg-warning-subtle text-warning fw-semibold";
     return "badge bg-success-subtle text-success fw-semibold";
   };
-
 
   return (
     <div className="container-fluid py-4">
@@ -81,7 +93,8 @@ export default function AssignmentsList() {
       >
         <h5 className="fw-bold mb-1">🧭 Assigned Field Visits</h5>
         <p className="mb-0 opacity-75">
-          Review and manage all field visit assignments assigned by the District Magistrate
+          Review and manage all field visit assignments assigned by the District
+          Magistrate
         </p>
       </div>
 
@@ -111,7 +124,10 @@ export default function AssignmentsList() {
 
             <div className="ms-auto text-muted small">
               {total > 0 ? (
-                <>Showing <strong>{start + 1}</strong>–<strong>{end}</strong> of <strong>{total}</strong></>
+                <>
+                  Showing <strong>{start + 1}</strong>–<strong>{end}</strong> of{" "}
+                  <strong>{total}</strong>
+                </>
               ) : (
                 <>No assignments</>
               )}
@@ -128,7 +144,9 @@ export default function AssignmentsList() {
                 }}
               >
                 <tr>
-                  <th className="text-center" style={{ width: 70 }}>#</th>
+                  <th className="text-center" style={{ width: 70 }}>
+                    #
+                  </th>
                   <th>Officer</th>
                   <th style={{ width: 150 }}>District</th>
                   <th style={{ width: 180 }}>Gram Panchayat</th>
@@ -136,7 +154,9 @@ export default function AssignmentsList() {
                   <th style={{ width: 130 }}>Priority</th>
                   <th style={{ width: 160 }}>Visit Date</th>
                   <th>Assigned By (DM)</th>
-                  <th style={{ width: 120 }} className="text-center">Action</th>
+                  <th style={{ width: 120 }} className="text-center">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -150,10 +170,17 @@ export default function AssignmentsList() {
                     {/* Officer */}
                     <td>
                       <div className="d-flex flex-column">
-                        <span className="fw-semibold" style={{ color: "#1e3a8a" }}>
-                          {(row?.officer?.firstName || "") + " " + (row?.officer?.lastName || "")}
+                        <span
+                          className="fw-semibold"
+                          style={{ color: "#1e3a8a" }}
+                        >
+                          {(row?.officer?.firstName || "") +
+                            " " +
+                            (row?.officer?.lastName || "")}
                         </span>
-                        <small className="text-muted">{row?.officer?.email || "N/A"}</small>
+                        <small className="text-muted">
+                          {row?.officer?.email || "N/A"}
+                        </small>
                       </div>
                     </td>
 
@@ -184,9 +211,13 @@ export default function AssignmentsList() {
                     <td>
                       <div className="d-flex flex-column">
                         <span className="fw-semibold">
-                          {(row?.dm?.firstName || "") + " " + (row?.dm?.lastName || "")}
+                          {(row?.dm?.firstName || "") +
+                            " " +
+                            (row?.dm?.lastName || "")}
                         </span>
-                        <small className="text-muted">{row?.dm?.email || "N/A"}</small>
+                        <small className="text-muted">
+                          {row?.dm?.email || "N/A"}
+                        </small>
                       </div>
                     </td>
 
@@ -203,7 +234,8 @@ export default function AssignmentsList() {
                         onMouseOver={(e) => {
                           e.currentTarget.style.backgroundColor = "#1e3a8a";
                           e.currentTarget.style.color = "#fff";
-                          e.currentTarget.style.boxShadow = "0 4px 12px rgba(30,58,138,0.3)";
+                          e.currentTarget.style.boxShadow =
+                            "0 4px 12px rgba(30,58,138,0.3)";
                         }}
                         onMouseOut={(e) => {
                           e.currentTarget.style.backgroundColor = "transparent";
@@ -212,6 +244,12 @@ export default function AssignmentsList() {
                         }}
                       >
                         View
+                      </button>
+                      <button
+                        className="btn btn-outline-info btn-sm fw-semibold ms-2"
+                        onClick={() => handleVisitStatus(row)}
+                      >
+                        Visit Status
                       </button>
                     </td>
                   </tr>
@@ -255,7 +293,17 @@ export default function AssignmentsList() {
       </div>
 
       {/* ===== VIEW MODAL (existing) ===== */}
-      <ViewAssignmentModal open={open} onClose={handleClose} assignment={selected} />
+      <ViewAssignmentModal
+        open={open}
+        onClose={handleClose}
+        assignment={selected}
+      />
+
+      <DMVisitStatusModal
+        open={statusOpen}
+        onClose={() => setStatusOpen(false)}
+        assignment={statusAssignment}
+      />
     </div>
   );
 }

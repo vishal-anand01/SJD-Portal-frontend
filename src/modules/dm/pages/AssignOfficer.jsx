@@ -14,28 +14,16 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import axios from "../../../api/axiosConfig";
 import ToastAlert from "../../../components/notifications/ToastAlert";
 import { useNavigate, useLocation } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
 import dayjs from "dayjs";
-import Swal from "sweetalert2"; // 👈 add this import
+import Swal from "sweetalert2";
+import useAuth from "../../../hooks/useAuth";
+import CircularProgress from "@mui/material/CircularProgress";
 
 export default function AssignOfficer() {
   const [loading, setLoading] = useState(false);
   const [officers, setOfficers] = useState([]);
-  const [districts] = useState([
-    "Almora",
-    "Bageshwar",
-    "Chamoli",
-    "Champawat",
-    "Dehradun",
-    "Haridwar",
-    "Nainital",
-    "Pauri Garhwal",
-    "Pithoragarh",
-    "Rudraprayag",
-    "Tehri Garhwal",
-    "Udham Singh Nagar",
-    "Uttarkashi",
-  ]);
+  const { user } = useAuth();
+
   const [panchayats, setPanchayats] = useState([]);
   const [villages, setVillages] = useState([]);
   const [toast, setToast] = useState({
@@ -44,9 +32,10 @@ export default function AssignOfficer() {
     severity: "info",
   });
 
+  // FORM STATE — district auto-filled from DM user
   const [form, setForm] = useState({
     visitDate: dayjs(),
-    district: "",
+    district: user?.district || "", // ⭐ Auto-fill DM district
     gramPanchayat: "",
     village: "",
     officerId: "",
@@ -54,17 +43,24 @@ export default function AssignOfficer() {
     notes: "",
   });
 
-  const navigate = useNavigate();
   const locationState = useLocation()?.state || {};
 
-  // Local toast helper
+  // Toast helper
   const showToast = (message, severity = "info") =>
     setToast({ open: true, message, severity });
 
+  // Always ensure district stays DM's district
+  useEffect(() => {
+    if (user?.district) {
+      setForm((f) => ({ ...f, district: user.district }));
+    }
+  }, [user]);
+
   // Load Officers
   useEffect(() => {
-    if (locationState?.officerId)
+    if (locationState?.officerId) {
       setForm((f) => ({ ...f, officerId: locationState.officerId }));
+    }
     loadOfficers();
   }, []);
 
@@ -77,7 +73,7 @@ export default function AssignOfficer() {
     }
   };
 
-  // Load Panchayats when District selected
+  // Load Panchayats for DM district
   useEffect(() => {
     if (form.district) {
       axios
@@ -108,10 +104,11 @@ export default function AssignOfficer() {
     }
   }, [form.gramPanchayat]);
 
-  // Handle Submit
+  // Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.officerId || !form.visitDate || !form.district) {
+
+    if (!form.officerId || !form.visitDate) {
       Swal.fire({
         icon: "error",
         title: "Incomplete Form",
@@ -122,11 +119,12 @@ export default function AssignOfficer() {
     }
 
     try {
-      setLoading(true);
+      setLoading(true); // 🔥 Loader ON
+
       const payload = {
         officerId: form.officerId,
         visitDate: form.visitDate,
-        location: { 
+        location: {
           district: form.district,
           gramPanchayat: form.gramPanchayat,
           village: form.village,
@@ -137,26 +135,30 @@ export default function AssignOfficer() {
 
       await axios.post("/dm/assign", payload);
 
-      // ✅ Sweet success popup
+      // 🔥 Loader को visibly दिखाने के लिए छोटा सा delay
+      await new Promise((resolve) => setTimeout(resolve, 400));
+
+      // SUCCESS POPUP
       Swal.fire({
         icon: "success",
         title: "Officer Assigned Successfully 🎉",
         text: "The officer has been successfully assigned for the field visit.",
         showConfirmButton: false,
-        timer: 3000, // auto close after 3 sec
+        timer: 3000,
         timerProgressBar: true,
       });
 
-      // ✅ reset form but no redirect
+      // RESET form but district ko DM district hi रखना है
       setForm({
         visitDate: dayjs(),
-        district: "",
+        district: user?.district || "",
         gramPanchayat: "",
         village: "",
         officerId: "",
         priority: "Medium",
         notes: "",
       });
+
       setPanchayats([]);
       setVillages([]);
     } catch (err) {
@@ -169,10 +171,9 @@ export default function AssignOfficer() {
         confirmButtonColor: "#d33",
       });
     } finally {
-      setLoading(false);
+      setLoading(false); // 🔥 Loader OFF
     }
   };
-
 
   return (
     <Box className="container-fluid py-4">
@@ -184,7 +185,6 @@ export default function AssignOfficer() {
           borderRadius: 3,
           p: 2.5,
           mb: 3,
-          boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
           textAlign: "center",
         }}
       >
@@ -197,19 +197,12 @@ export default function AssignOfficer() {
       </Box>
 
       {/* FORM */}
-      <Card
-        sx={{
-          borderRadius: 3,
-          boxShadow: "0 6px 18px rgba(0,0,0,0.1)",
-          p: 2,
-          background: "#f9fafb",
-        }}
-      >
+      <Card sx={{ borderRadius: 3, p: 2, background: "#f9fafb" }}>
         <CardContent>
           <form onSubmit={handleSubmit}>
             <div className="row g-3">
-              {/* Date Picker */}
-              <div className="col-md-6 col-sm-12">
+              {/* Visit Date */}
+              <div className="col-md-6">
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
                     label="Visit Date"
@@ -218,18 +211,14 @@ export default function AssignOfficer() {
                       setForm({ ...form, visitDate: newVal })
                     }
                     slotProps={{
-                      textField: {
-                        fullWidth: true,
-                        required: true,
-                        variant: "outlined",
-                      },
+                      textField: { fullWidth: true, required: true },
                     }}
                   />
                 </LocalizationProvider>
               </div>
 
               {/* Officer */}
-              <div className="col-md-6 col-sm-12">
+              <div className="col-md-6">
                 <TextField
                   select
                   label="Select Officer"
@@ -249,29 +238,19 @@ export default function AssignOfficer() {
                 </TextField>
               </div>
 
-              {/* District */}
-              <div className="col-md-6 col-sm-12">
+              {/* District (READ ONLY) */}
+              <div className="col-md-6">
                 <TextField
-                  select
                   label="District"
                   fullWidth
-                  required
                   value={form.district}
-                  onChange={(e) =>
-                    setForm({ ...form, district: e.target.value })
-                  }
-                >
-                  <MenuItem value="">-- Choose District --</MenuItem>
-                  {districts.map((d) => (
-                    <MenuItem key={d} value={d}>
-                      {d}
-                    </MenuItem>
-                  ))}
-                </TextField>
+                  InputProps={{ readOnly: true }}
+                  sx={{ background: "#f1f5f9", cursor: "not-allowed" }}
+                />
               </div>
 
               {/* Gram Panchayat */}
-              <div className="col-md-6 col-sm-12">
+              <div className="col-md-6">
                 <TextField
                   select
                   label="Gram Panchayat"
@@ -292,7 +271,7 @@ export default function AssignOfficer() {
               </div>
 
               {/* Village */}
-              <div className="col-md-6 col-sm-12">
+              <div className="col-md-6">
                 <TextField
                   select
                   label="Village"
@@ -313,7 +292,7 @@ export default function AssignOfficer() {
               </div>
 
               {/* Priority */}
-              <div className="col-md-6 col-sm-12">
+              <div className="col-md-6">
                 <TextField
                   select
                   label="Priority"
@@ -346,17 +325,28 @@ export default function AssignOfficer() {
                 <Button
                   type="submit"
                   variant="contained"
+                  disabled={loading} // 🔥 Disable while loading
                   sx={{
-                    bgcolor: "#1e3a8a",
-                    px: 3,
-                    py: 1,
+                    bgcolor: loading ? "#1e3a8aaa" : "#1e3a8a",
                     fontWeight: 600,
-                    borderRadius: 2,
-                    boxShadow: "0 3px 10px rgba(0,0,0,0.2)",
-                    "&:hover": { bgcolor: "#1d4ed8" },
+                    minWidth: 180,
+                    height: 45,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
-                  🚀 Assign Officer
+                  {loading ? (
+                    <>
+                      <CircularProgress
+                        size={22}
+                        sx={{ color: "white", mr: 1 }}
+                      />
+                      Assigning...
+                    </>
+                  ) : (
+                    "🚀 Assign Officer"
+                  )}
                 </Button>
               </div>
             </div>
@@ -371,13 +361,6 @@ export default function AssignOfficer() {
         severity={toast.severity}
         onClose={() => setToast((prev) => ({ ...prev, open: false }))}
       />
-
-      {/* Footer */}
-      <Box sx={{ textAlign: "center", mt: 4 }}>
-        <Typography variant="body2" color="text.secondary">
-          © {new Date().getFullYear()} SJD Portal — District Magistrate Panel
-        </Typography>
-      </Box>
     </Box>
   );
 }

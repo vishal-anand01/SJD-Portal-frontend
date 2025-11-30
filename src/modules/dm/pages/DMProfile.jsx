@@ -295,6 +295,24 @@ export default function DMProfile() {
             </Typography>
 
             <div className="row gy-4 gx-4">
+              {/* Unique ID */}
+              <div className="col-md-6">
+                <TextField
+                  fullWidth
+                  name="uniqueId"
+                  label="SJD ID"
+                  value={form.uniqueId || ""}
+                  InputProps={{
+                    readOnly: true,
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <VerifiedIcon sx={{ color: "#1e3a8a" }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </div>
+
               {/* First Name */}
               <div className="col-md-6">
                 <TextField
@@ -436,6 +454,25 @@ export default function DMProfile() {
                   name="city"
                   label="City"
                   value={form.city || ""}
+                  onChange={handleChange}
+                  InputProps={{
+                    readOnly: !editMode,
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <LocationOnIcon color="primary" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </div>
+
+              {/* District */}
+              <div className="col-md-6">
+                <TextField
+                  fullWidth
+                  name="district"
+                  label="District"
+                  value={form.district || ""}
                   onChange={handleChange}
                   InputProps={{
                     readOnly: !editMode,

@@ -92,7 +92,7 @@ export default function HeaderNavbar() {
                 color: "#1e293b",
               }}
             >
-              जनता दरबार
+              सरकार जनता के द्वार
             </Typography>
             <Typography
               variant="body2"
@@ -102,7 +102,7 @@ export default function HeaderNavbar() {
                 letterSpacing: "0.5px",
               }}
             >
-              SJD-Portal
+              Sarkar Janata ke Dwaar
             </Typography>
           </Box>
         </Box>
@@ -194,8 +194,7 @@ export default function HeaderNavbar() {
                       left: 0,
                       bottom: 0,
                       height: "2px",
-                      width:
-                        location.pathname === item.path ? "100%" : "0%",
+                      width: location.pathname === item.path ? "100%" : "0%",
                       background: "#fbbf24",
                       transition: "width 0.3s ease",
                     }}

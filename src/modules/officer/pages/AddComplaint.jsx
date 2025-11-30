@@ -161,7 +161,7 @@ export default function AddComplaint() {
         minHeight: "100vh",
       }}
     >
-      <Container maxWidth="md">
+      <Container maxWidth="lg">
         <Card sx={{ borderRadius: 4, boxShadow: "0 8px 24px rgba(0,0,0,0.1)" }}>
           <CardContent sx={{ p: { xs: 3, md: 5 } }}>
             <Typography

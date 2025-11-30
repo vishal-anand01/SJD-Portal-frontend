@@ -14,6 +14,8 @@ import {
   Radio,
   FormLabel,
   Divider,
+  MenuItem,
+  Select,
 } from "@mui/material";
 import {
   Person,
@@ -28,6 +30,8 @@ import {
   CalendarMonth,
   PinDrop,
 } from "@mui/icons-material";
+import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
+import LayersIcon from "@mui/icons-material/Layers";
 import { Row, Col } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
@@ -45,6 +49,7 @@ export default function Register() {
     dob: "",
     address: "",
     city: "",
+    district: "",
     state: "",
     country: "",
     pincode: "",
@@ -57,7 +62,8 @@ export default function Register() {
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -78,6 +84,22 @@ export default function Register() {
       setLoading(false);
     }
   };
+
+  const DISTRICTS = [
+    "Almora",
+    "Bageshwar",
+    "Chamoli",
+    "Champawat",
+    "Dehradun",
+    "Haridwar",
+    "Nainital",
+    "Pauri Garhwal",
+    "Pithoragarh",
+    "Rudraprayag",
+    "Tehri Garhwal",
+    "Udham Singh Nagar",
+    "Uttarkashi",
+  ];
 
   return (
     <>
@@ -187,7 +209,10 @@ export default function Register() {
 
                 {/* Gender */}
                 <Col md={12}>
-                  <FormLabel component="legend" sx={{ color: "#1e3a8a", fontWeight: 600 }}>
+                  <FormLabel
+                    component="legend"
+                    sx={{ color: "#1e3a8a", fontWeight: 600 }}
+                  >
                     Gender
                   </FormLabel>
                   <RadioGroup
@@ -197,9 +222,21 @@ export default function Register() {
                     onChange={handleChange}
                     sx={{ mt: 1 }}
                   >
-                    <FormControlLabel value="Male" control={<Radio />} label="Male" />
-                    <FormControlLabel value="Female" control={<Radio />} label="Female" />
-                    <FormControlLabel value="Other" control={<Radio />} label="Other" />
+                    <FormControlLabel
+                      value="Male"
+                      control={<Radio />}
+                      label="Male"
+                    />
+                    <FormControlLabel
+                      value="Female"
+                      control={<Radio />}
+                      label="Female"
+                    />
+                    <FormControlLabel
+                      value="Other"
+                      control={<Radio />}
+                      label="Other"
+                    />
                   </RadioGroup>
                 </Col>
 
@@ -301,6 +338,34 @@ export default function Register() {
                     }}
                   />
                 </Col>
+
+                <Col md={6}>
+                  <Select
+                    name="district"
+                    value={form.district}
+                    onChange={handleChange}
+                    fullWidth
+                    required
+                    displayEmpty
+                    startAdornment={
+                      <InputAdornment position="start">
+                        <LayersIcon />
+                      </InputAdornment>
+                    }
+                    sx={{ backgroundColor: "#fff", borderRadius: 1 }}
+                  >
+                    <MenuItem value="" disabled>
+                      Select District
+                    </MenuItem>
+
+                    {DISTRICTS.map((dist) => (
+                      <MenuItem key={dist} value={dist}>
+                        {dist}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </Col>
+
                 <Col md={6}>
                   <TextField
                     label="State"
@@ -310,6 +375,13 @@ export default function Register() {
                     fullWidth
                     required
                     placeholder="Enter your state"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <AccountBalanceIcon />
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </Col>
 
@@ -372,7 +444,9 @@ export default function Register() {
                       ),
                       endAdornment: (
                         <InputAdornment position="end">
-                          <IconButton onClick={() => setShowPassword(!showPassword)}>
+                          <IconButton
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
                             {showPassword ? <VisibilityOff /> : <Visibility />}
                           </IconButton>
                         </InputAdornment>
@@ -398,7 +472,9 @@ export default function Register() {
                       ),
                       endAdornment: (
                         <InputAdornment position="end">
-                          <IconButton onClick={() => setShowConfirm(!showConfirm)}>
+                          <IconButton
+                            onClick={() => setShowConfirm(!showConfirm)}
+                          >
                             {showConfirm ? <VisibilityOff /> : <Visibility />}
                           </IconButton>
                         </InputAdornment>

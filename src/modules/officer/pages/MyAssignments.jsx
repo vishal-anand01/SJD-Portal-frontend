@@ -1,13 +1,28 @@
-import React, { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import dayjs from "dayjs";
 import axios from "../../../api/axiosConfig";
 import ViewAssignmentModal from "../../dm/models/ViewAssignmentModal"; // ✅ reuse same modal
+import UpdateAssignmentDialog from "../dialogs/UpdateAssignmentDialog";
+import React, { useState } from "react";
+import IconButton from "@mui/material/IconButton";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+// MUI Icons
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import EditIcon from "@mui/icons-material/Edit";
 
 export default function MyAssignments() {
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(null);
   const [open, setOpen] = useState(false);
+  const [updateOpen, setUpdateOpen] = useState(false);
+  const [selectedAssignment, setSelectedAssignment] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedRow, setSelectedRow] = useState(null);
 
   // pagination state
   const [page, setPage] = useState(0);
@@ -41,10 +56,18 @@ export default function MyAssignments() {
     setOpen(false);
   };
 
+  const handleUpdate = (row) => {
+    setSelectedAssignment(row);
+    setUpdateOpen(true);
+  };
+
   const total = assignments.length;
   const start = page * pageSize;
   const end = Math.min(start + pageSize, total);
-  const pageData = useMemo(() => assignments.slice(start, end), [assignments, start, end]);
+  const pageData = useMemo(
+    () => assignments.slice(start, end),
+    [assignments, start, end]
+  );
 
   const nextPage = () => {
     if ((page + 1) * pageSize < total) setPage((p) => p + 1);
@@ -62,8 +85,19 @@ export default function MyAssignments() {
 
   const priorityBadge = (p) => {
     if (p === "High") return "badge bg-danger-subtle text-danger fw-semibold";
-    if (p === "Medium") return "badge bg-warning-subtle text-warning fw-semibold";
+    if (p === "Medium")
+      return "badge bg-warning-subtle text-warning fw-semibold";
     return "badge bg-success-subtle text-success fw-semibold";
+  };
+
+  const handleMenuOpen = (event, row) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedRow(row);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedRow(null);
   };
 
   return (
@@ -79,7 +113,8 @@ export default function MyAssignments() {
       >
         <h5 className="fw-bold mb-1">🧾 My Assigned Visits</h5>
         <p className="mb-0 opacity-75">
-          Below are all the field assignments assigned to you by the District Magistrate
+          Below are all the field assignments assigned to you by the District
+          Magistrate
         </p>
       </div>
 
@@ -109,7 +144,10 @@ export default function MyAssignments() {
 
             <div className="ms-auto text-muted small">
               {total > 0 ? (
-                <>Showing <strong>{start + 1}</strong>–<strong>{end}</strong> of <strong>{total}</strong></>
+                <>
+                  Showing <strong>{start + 1}</strong>–<strong>{end}</strong> of{" "}
+                  <strong>{total}</strong>
+                </>
               ) : (
                 <>No assignments</>
               )}
@@ -126,7 +164,9 @@ export default function MyAssignments() {
                 }}
               >
                 <tr>
-                  <th className="text-center" style={{ width: 70 }}>#</th>
+                  <th className="text-center" style={{ width: 70 }}>
+                    #
+                  </th>
                   <th>DM</th>
                   <th>District</th>
                   <th>Gram Panchayat</th>
@@ -140,44 +180,100 @@ export default function MyAssignments() {
               <tbody>
                 {pageData.map((row, idx) => (
                   <tr key={row._id}>
-                    <td className="text-center fw-semibold">{start + idx + 1}</td>
+                    <td className="text-center fw-semibold">
+                      {start + idx + 1}
+                    </td>
                     <td>
                       <div className="d-flex flex-column">
-                        <span className="fw-semibold" style={{ color: "#1e3a8a" }}>
-                          {(row?.dm?.firstName || "") + " " + (row?.dm?.lastName || "")}
+                        <span
+                          className="fw-semibold"
+                          style={{ color: "#1e3a8a" }}
+                        >
+                          {(row?.dm?.firstName || "") +
+                            " " +
+                            (row?.dm?.lastName || "")}
                         </span>
-                        <small className="text-muted">{row?.dm?.email || "N/A"}</small>
+                        <small className="text-muted">
+                          {row?.dm?.email || "N/A"}
+                        </small>
                       </div>
                     </td>
                     <td>{row?.location?.district || "-"}</td>
                     <td>{row?.location?.gramPanchayat || "-"}</td>
                     <td>{row?.location?.village || "-"}</td>
                     <td>
-                      <span className={priorityBadge(row?.priority)}>{row?.priority}</span>
+                      <span className={priorityBadge(row?.priority)}>
+                        {row?.priority}
+                      </span>
                     </td>
-                    <td>{row?.visitDate ? dayjs(row.visitDate).format("DD MMM YYYY") : "—"}</td>
+                    <td>
+                      {row?.visitDate
+                        ? dayjs(row.visitDate).format("DD MMM YYYY")
+                        : "—"}
+                    </td>
                     <td>
                       <span className="badge bg-primary-subtle text-primary fw-semibold">
                         {row?.status || "Assigned"}
                       </span>
                     </td>
                     <td className="text-center">
-                      <button
-                        type="button"
-                        className="btn btn-outline-primary btn-sm fw-semibold"
-                        onClick={() => handleView(row)}
-                        style={{ borderColor: "#1e3a8a", color: "#1e3a8a" }}
-                        onMouseOver={(e) => {
-                          e.currentTarget.style.backgroundColor = "#1e3a8a";
-                          e.currentTarget.style.color = "#fff";
-                        }}
-                        onMouseOut={(e) => {
-                          e.currentTarget.style.backgroundColor = "transparent";
-                          e.currentTarget.style.color = "#1e3a8a";
+                      <IconButton
+                        size="small"
+                        onClick={(e) => handleMenuOpen(e, row)}
+                        sx={{
+                          color: "#1e3a8a",
+                          border: "1px solid #1e3a8a",
+                          padding: "4px",
+                          borderRadius: "50%",
                         }}
                       >
-                        View
-                      </button>
+                        <MoreVertIcon fontSize="small" />
+                      </IconButton>
+
+                      <Menu
+                        anchorEl={anchorEl}
+                        open={Boolean(anchorEl) && selectedRow?._id === row._id}
+                        onClose={handleMenuClose}
+                        anchorOrigin={{
+                          vertical: "bottom",
+                          horizontal: "right",
+                        }}
+                        transformOrigin={{
+                          vertical: "top",
+                          horizontal: "right",
+                        }}
+                        PaperProps={{
+                          elevation: 4,
+                          sx: {
+                            minWidth: 180,
+                            borderRadius: "10px",
+                          },
+                        }}
+                      >
+                        <MenuItem
+                          onClick={() => {
+                            handleMenuClose();
+                            handleView(row);
+                          }}
+                        >
+                          <ListItemIcon>
+                            <VisibilityIcon sx={{ color: "#1e3a8a" }} />
+                          </ListItemIcon>
+                          <ListItemText primary="View Assignment" />
+                        </MenuItem>
+
+                        <MenuItem
+                          onClick={() => {
+                            handleMenuClose();
+                            handleUpdate(row);
+                          }}
+                        >
+                          <ListItemIcon>
+                            <EditIcon sx={{ color: "#16a34a" }} />
+                          </ListItemIcon>
+                          <ListItemText primary="Update Visit Report" />
+                        </MenuItem>
+                      </Menu>
                     </td>
                   </tr>
                 ))}
@@ -220,7 +316,18 @@ export default function MyAssignments() {
       </div>
 
       {/* ===== VIEW MODAL ===== */}
-      <ViewAssignmentModal open={open} onClose={handleClose} assignment={selected} />
+      <ViewAssignmentModal
+        open={open}
+        onClose={handleClose}
+        assignment={selected}
+      />
+
+      <UpdateAssignmentDialog
+        open={updateOpen}
+        assignment={selectedAssignment}
+        onClose={() => setUpdateOpen(false)}
+        refresh={loadAssignments}
+      />
     </div>
   );
 }

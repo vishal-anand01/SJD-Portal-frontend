@@ -16,44 +16,56 @@ export default function Login() {
   const navigate = useNavigate();
 
   const [form, setForm] = React.useState({ email: "", password: "" });
-  const [err, setErr] = React.useState("");
 
-  const handleChange = (e) =>
+  const [errors, setErrors] = React.useState({
+    email: "",
+    password: "",
+    general: "",
+  });
+
+  const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: "" });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErr("");
+    setErrors({ email: "", password: "", general: "" });
 
     try {
       const res = await login(form);
-      const role = res?.user?.role; // ✅ Directly use user.role from AuthContext
+      const role = res?.user?.role;
 
-      if (role === "admin" || role === "superadmin") {
-        navigate("/admin/dashboard");
-      } else if (role === "officer") {
-        navigate("/officer/dashboard");
-      } else if (role === "department") {
-        navigate("/department/dashboard");
-      } else {
-        navigate("/public/dashboard"); // optional or homepage
-      }
+      if (role === "admin" || role === "superadmin") navigate("/admin/dashboard");
+      else if (role === "officer") navigate("/officer/dashboard");
+      else if (role === "department") navigate("/department/dashboard");
+      else navigate("/public/dashboard");
     } catch (error) {
-      setErr(
-        error?.response?.data?.message || "Login failed. Please try again."
-      );
+      const err = error?.response?.data;
+
+      if (err?.field === "email") {
+        setErrors((prev) => ({ ...prev, email: err.message }));
+      } else if (err?.field === "password") {
+        setErrors((prev) => ({ ...prev, password: err.message }));
+      } else {
+        setErrors((prev) => ({
+          ...prev,
+          general: err?.message || "Something went wrong.",
+        }));
+      }
     }
   };
 
   return (
     <>
-      {/* 🌟 HERO SECTION */}
+      {/* -------- HERO SECTION -------- */}
       <Box
         sx={{
-          background: "linear-gradient(135deg, #1e3a8a 0%, #312e81 100%)",
+          background: "linear-gradient(135deg, #0f172a, #1e3a8a)",
           color: "#fff",
           py: 8,
           textAlign: "center",
+          boxShadow: "0 4px 40px rgba(0,0,0,0.2)",
         }}
       >
         <Container>
@@ -62,30 +74,33 @@ export default function Login() {
             sx={{
               fontWeight: 900,
               mb: 2,
-              fontSize: { xs: "2rem", md: "3rem" },
+              letterSpacing: "1px",
+              fontSize: { xs: "2.2rem", md: "3.2rem" },
             }}
           >
-            Sign In to <span style={{ color: "#fbbf24" }}>SJD-Portal</span>
+            Welcome to{" "}
+            <span style={{ color: "#fbbf24" }}>SJD-Portal</span>
           </Typography>
+
           <Typography
             variant="h6"
             sx={{
-              maxWidth: "700px",
+              maxWidth: "650px",
               mx: "auto",
-              color: "rgba(255,255,255,0.9)",
+              opacity: 0.8,
+              fontSize: { xs: "1rem", md: "1.2rem" },
             }}
           >
-            आपकी शिकायत महत्वपूर्ण है — लॉगिन करें और अपनी भूमिका के अनुसार
-            डैशबोर्ड पर जाएं।
+            आपकी शिकायत — हमारी प्राथमिकता। लॉगिन करके तुरंत अपने डैशबोर्ड पर जाएं।
           </Typography>
         </Container>
       </Box>
 
-      {/* 🟦 MAIN LOGIN SECTION */}
+      {/* -------- LOGIN SECTION -------- */}
       <div
         style={{
-          minHeight: "calc(100vh - 200px)",
-          background: "linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%)",
+          minHeight: "calc(100vh - 250px)",
+          background: "linear-gradient(180deg, #e2e8f0, #f8fafc)",
           display: "flex",
           alignItems: "center",
           padding: "3rem 0",
@@ -93,28 +108,35 @@ export default function Login() {
       >
         <Container>
           <Row className="justify-content-center align-items-center">
-            {/* Login Card */}
+            {/* ---------- LOGIN CARD ---------- */}
             <Col md={6} lg={5}>
               <Card
-                elevation={4}
                 sx={{
-                  borderRadius: "16px",
-                  padding: "2.5rem",
-                  backgroundColor: "#fff",
-                  boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
+                  p: 4,
+                  borderRadius: "20px",
+                  background: "rgba(255,255,255,0.7)",
+                  backdropFilter: "blur(10px)",
+                  border: "1px solid rgba(255,255,255,0.4)",
+                  boxShadow: "0 10px 40px rgba(0,0,0,0.15)",
+                  transition: "0.3s",
+                  "&:hover": {
+                    transform: "translateY(-4px)",
+                    boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+                  },
                 }}
               >
                 <Typography
-                  variant="h5"
+                  variant="h4"
                   sx={{
-                    fontWeight: 900,
+                    fontWeight: 800,
                     mb: 1,
                     textAlign: "center",
                     color: "#1e3a8a",
                   }}
                 >
-                  Welcome Back
+                  Sign In
                 </Typography>
+
                 <Typography
                   variant="body1"
                   sx={{
@@ -123,51 +145,59 @@ export default function Login() {
                     color: "#475569",
                   }}
                 >
-                  Sign in to continue to{" "}
-                  <span style={{ fontWeight: 700, color: "#f59e0b" }}>
-                    SJD-Portal
+                  Access your{" "}
+                  <span style={{ color: "#f59e0b", fontWeight: 700 }}>
+                    SJD-Portal Dashboard
                   </span>
                 </Typography>
 
                 <Form onSubmit={handleSubmit}>
-                  <Form.Group className="mb-3" controlId="email">
+                  {/* EMAIL */}
+                  <Form.Group className="mb-3">
                     <TextField
                       label="Email Address"
                       name="email"
                       value={form.email}
                       onChange={handleChange}
                       fullWidth
-                      size="small"
+                      size="medium"
                       required
+                      error={Boolean(errors.email)}
+                      helperText={errors.email}
                     />
                   </Form.Group>
 
-                  <Form.Group className="mb-3" controlId="password">
+                  {/* PASSWORD */}
+                  <Form.Group className="mb-3">
                     <TextField
                       label="Password"
-                      name="password"
                       type="password"
+                      name="password"
                       value={form.password}
                       onChange={handleChange}
                       fullWidth
-                      size="small"
+                      size="medium"
                       required
+                      error={Boolean(errors.password)}
+                      helperText={errors.password}
                     />
                   </Form.Group>
 
-                  {err && (
+                  {/* GENERAL ERROR */}
+                  {errors.general && (
                     <div
                       style={{
                         backgroundColor: "#fee2e2",
                         border: "1px solid #f87171",
-                        borderRadius: "8px",
-                        padding: "0.75rem",
+                        borderRadius: "10px",
+                        padding: "0.8rem",
                         color: "#b91c1c",
                         marginBottom: "1rem",
-                        fontSize: "0.9rem",
+                        fontSize: "0.95rem",
+                        textAlign: "center",
                       }}
                     >
-                      ⚠️ {err}
+                      ⚠️ {errors.general}
                     </div>
                   )}
 
@@ -184,89 +214,88 @@ export default function Login() {
                       variant="contained"
                       disabled={loading}
                       sx={{
-                        backgroundColor: "#1e3a8a",
-                        "&:hover": { backgroundColor: "#1d4ed8" },
-                        borderRadius: "8px",
+                        background: "linear-gradient(90deg,#1e3a8a,#1d4ed8)",
                         fontWeight: 700,
-                        px: 3,
+                        px: 4,
+                        py: 1,
+                        fontSize: "1rem",
+                        borderRadius: "10px",
+                        "&:hover": {
+                          background:
+                            "linear-gradient(90deg,#1d4ed8,#1e40af)",
+                        },
                       }}
                     >
                       {loading ? (
                         <>
                           <CircularProgress
-                            size={20}
+                            size={22}
                             sx={{ color: "#fff", mr: 1 }}
                           />
                           Signing in...
                         </>
                       ) : (
-                        "Sign In"
+                        "Login"
                       )}
                     </Button>
 
-                    <Link to="/forgot-password" className="small">
+                    <Link to="/forgot-password" style={{ fontSize: "0.9rem" }}>
                       Forgot Password?
                     </Link>
                   </Box>
                 </Form>
 
+                {/* REGISTER LINK */}
                 <Box sx={{ mt: 4, textAlign: "center" }}>
                   <Typography variant="body2" sx={{ color: "#475569" }}>
-                    Don’t have an account?{" "}
+                    New to platform?{" "}
                     <Link to="/register" style={{ color: "#1e3a8a" }}>
-                      Register
+                      Create an Account
                     </Link>
                   </Typography>
                 </Box>
               </Card>
             </Col>
 
-            {/* Info Section */}
+            {/* -------- INFO PANEL -------- */}
             <Col
               md={6}
               lg={7}
-              className="d-none d-md-block"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
+              className="d-none d-md-flex"
+              style={{ justifyContent: "center" }}
             >
               <Box
                 sx={{
-                  background:
-                    "linear-gradient(135deg, #1e3a8a 0%, #312e81 100%)",
-                  borderRadius: "20px",
+                  background: "linear-gradient(135deg,#1e3a8a,#312e81)",
+                  borderRadius: "24px",
                   padding: "3rem",
                   color: "#fff",
-                  minHeight: "380px",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  boxShadow: "0 6px 24px rgba(0,0,0,0.25)",
+                  width: "100%",
+                  maxWidth: "600px",
+                  boxShadow: "0 10px 40px rgba(0,0,0,0.3)",
                 }}
               >
                 <Typography
-                  variant="h5"
+                  variant="h4"
                   sx={{
-                    fontWeight: 800,
+                    fontWeight: 900,
                     mb: 2,
                     color: "#fbbf24",
                   }}
                 >
-                  Welcome to SJD-Portal
+                  Why Use SJD-Portal?
                 </Typography>
 
-                <Typography variant="body1" sx={{ mb: 2, opacity: 0.9 }}>
-                  नागरिकों और अधिकारियों को जोड़ने वाला एक प्लेटफॉर्म — Track
-                  complaints, manage visits, and generate reports seamlessly.
+                <Typography variant="body1" sx={{ opacity: 0.9, mb: 2 }}>
+                  आधुनिक, तेज़ और सुरक्षित — ट्रैक करें अपनी शिकायतें और निरीक्षण।
                 </Typography>
 
-                <ul style={{ marginLeft: "1rem", opacity: 0.9 }}>
-                  <li>✅ Real-time complaint tracking</li>
-                  <li>✅ Smart AI categorization</li>
-                  <li>✅ PDF / Excel report export</li>
-                  <li>✅ Push notifications & map tracking</li>
+                <ul style={{ opacity: 0.9, fontSize: "1.05rem" }}>
+                  <li>⚡ Real-Time Complaint Tracking</li>
+                  <li>⚡ Smart AI Categorization</li>
+                  <li>⚡ Visit & Map Tracking</li>
+                  <li>⚡ PDF / Excel Report Export</li>
+                  <li>⚡ Push Notifications</li>
                 </ul>
               </Box>
             </Col>
