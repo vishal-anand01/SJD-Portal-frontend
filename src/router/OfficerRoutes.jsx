@@ -7,6 +7,7 @@ import AddComplaint from "../modules/officer/pages/AddComplaint";
 import MyVisits from "../modules/officer/pages/MyVisits";
 import Profile from "../modules/officer/pages/Profile";
 import MyAssignments from "../modules/officer/pages/MyAssignments.jsx";
+import TrackStatus from "../modules/officer/pages/TrackStatus.jsx";
 
 export const OfficerRoutesConfig = [
   { path: "dashboard", element: <OfficerDashboard /> },
@@ -16,6 +17,7 @@ export const OfficerRoutesConfig = [
   { path: "visits", element: <MyVisits /> },
   { path: "profile", element: <Profile /> },
   { path: "assignments", element: <MyAssignments /> },
+  { path: "track-status", element: <TrackStatus /> },
 ];
 
 export default function OfficerRoutes() {

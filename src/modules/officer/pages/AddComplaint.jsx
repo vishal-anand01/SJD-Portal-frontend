@@ -15,7 +15,6 @@ import {
 } from "@mui/material";
 import { Row, Col } from "react-bootstrap";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import CategoryIcon from "@mui/icons-material/Category";
 import RoomIcon from "@mui/icons-material/Room";
 import DescriptionIcon from "@mui/icons-material/Description";
 import TitleIcon from "@mui/icons-material/Title";
@@ -35,7 +34,6 @@ export default function AddComplaint() {
     citizenMobile: "",
     citizenDob: "",
     title: "",
-    category: "",
     description: "",
     location: "",
     village: "",
@@ -130,7 +128,6 @@ export default function AddComplaint() {
           citizenMobile: "",
           citizenDob: "",
           title: "",
-          category: "",
           description: "",
           location: "",
           village: "",
@@ -217,7 +214,7 @@ export default function AddComplaint() {
               <Row className="gy-4">
                 <Col md={6}>
                   <TextField
-                    label="Citizen Name"
+                    label="Name"
                     name="citizenName"
                     value={form.citizenName}
                     onChange={handleChange}
@@ -282,7 +279,7 @@ export default function AddComplaint() {
               <Row className="gy-4">
                 <Col md={12}>
                   <TextField
-                    label="Complaint Title"
+                    label="Subject"
                     name="title"
                     value={form.title}
                     onChange={handleChange}
@@ -298,31 +295,7 @@ export default function AddComplaint() {
                   />
                 </Col>
 
-                <Col md={6}>
-                  <TextField
-                    select
-                    label="Category"
-                    name="category"
-                    value={form.category}
-                    onChange={handleChange}
-                    fullWidth
-                    required
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <CategoryIcon color="primary" />
-                        </InputAdornment>
-                      ),
-                    }}
-                  >
-                    {categories.map((cat) => (
-                      <MenuItem key={cat} value={cat}>
-                        {cat}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Col>
-
+                
                 <Col md={6}>
                   <TextField
                     label="Location / Area"

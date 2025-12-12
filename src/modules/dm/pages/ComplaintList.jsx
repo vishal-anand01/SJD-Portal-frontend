@@ -24,6 +24,7 @@ import {
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import ViewComplaintDialog from "../../officer/dialogs/ViewComplaintDialog";
+import TrackComplaintDialog from "../models/TrackComplaintDialog";
 
 export default function DMComplaintList() {
   const [complaints, setComplaints] = useState([]);
@@ -84,9 +85,10 @@ export default function DMComplaintList() {
   const handleMenuClose = () => setAnchorEl(null);
 
   const handleView = () => {
-    setDialogOpen(true);
+    setDialogOpen("view");
     handleMenuClose();
   };
+
   const handleCloseDialog = () => setDialogOpen(false);
 
   const handleChangePage = (_, newPage) => setPage(newPage);
@@ -213,7 +215,17 @@ export default function DMComplaintList() {
                   paginatedComplaints.map((c, index) => (
                     <TableRow key={c._id} hover>
                       <TableCell>{page * rowsPerPage + index + 1}</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>
+                      <TableCell
+                        sx={{
+                          fontWeight: 600,
+                          color: "#1e40af",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => {
+                          setSelectedComplaint(c);
+                          setDialogOpen("track");
+                        }}
+                      >
                         {c.trackingId}
                       </TableCell>
 
@@ -287,18 +299,30 @@ export default function DMComplaintList() {
       )}
 
       {/* Menu + Dialog */}
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+      >
         <MenuItem onClick={handleView}>
           <VisibilityIcon fontSize="small" sx={{ mr: 1 }} /> View Details
         </MenuItem>
       </Menu>
 
-      {dialogOpen && selectedComplaint && (
+      {dialogOpen === "view" && selectedComplaint && (
         <ViewComplaintDialog
-          open={dialogOpen}
+          open={true}
           complaint={selectedComplaint}
           onClose={handleCloseDialog}
           baseURL={baseURL}
+        />
+      )}
+
+      {dialogOpen === "track" && selectedComplaint && (
+        <TrackComplaintDialog
+          open={true}
+          onClose={handleCloseDialog}
+          trackingId={selectedComplaint?.trackingId}
         />
       )}
     </Box>

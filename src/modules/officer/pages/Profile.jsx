@@ -15,6 +15,10 @@ import {
 import { deepOrange } from "@mui/material/colors";
 import axios from "../../../api/axiosConfig";
 import useAuth from "../../../hooks/useAuth";
+import HomeIcon from "@mui/icons-material/Home";
+import LocationCityIcon from "@mui/icons-material/LocationCity";
+import BusinessIcon from "@mui/icons-material/Business";
+import MapIcon from "@mui/icons-material/Map";
 
 import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
@@ -53,7 +57,8 @@ export default function OfficerProfile() {
     fetchProfile();
   }, []);
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSave = async () => {
     setSaving(true);
@@ -97,7 +102,8 @@ export default function OfficerProfile() {
   return (
     <Box
       sx={{
-        background: "linear-gradient(135deg, #f8fafc 0%, #eff6ff 50%, #dbeafe 100%)",
+        background:
+          "linear-gradient(135deg, #f8fafc 0%, #eff6ff 50%, #dbeafe 100%)",
         minHeight: "100vh",
       }}
     >
@@ -123,7 +129,9 @@ export default function OfficerProfile() {
             }}
           >
             {/* 🖼️ Avatar + overlay edit */}
-            <Box sx={{ position: "relative", display: "inline-block", mx: "auto" }}>
+            <Box
+              sx={{ position: "relative", display: "inline-block", mx: "auto" }}
+            >
               <Avatar
                 src={profile.photo ? `${backendBase}/${profile.photo}` : ""}
                 alt={profile.firstName || "Officer"}
@@ -160,8 +168,12 @@ export default function OfficerProfile() {
                   boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
                   transition: "all 0.3s ease",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "#1e40af")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "#2563eb")}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.background = "#1e40af")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.background = "#2563eb")
+                }
               >
                 <input
                   id="photo-upload"
@@ -173,13 +185,19 @@ export default function OfficerProfile() {
                     if (!file) return;
 
                     const formData = new FormData();
-                    Object.keys(form).forEach((key) => formData.append(key, form[key]));
+                    Object.keys(form).forEach((key) =>
+                      formData.append(key, form[key])
+                    );
                     formData.append("photo", file);
 
                     try {
-                      const { data } = await axios.put("/officer/profile", formData, {
-                        headers: { "Content-Type": "multipart/form-data" },
-                      });
+                      const { data } = await axios.put(
+                        "/officer/profile",
+                        formData,
+                        {
+                          headers: { "Content-Type": "multipart/form-data" },
+                        }
+                      );
 
                       if (data?.officer?.photo) {
                         setProfile(data.officer);
@@ -194,7 +212,13 @@ export default function OfficerProfile() {
                     }
                   }}
                 />
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#fff" viewBox="0 0 24 24">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  fill="#fff"
+                  viewBox="0 0 24 24"
+                >
                   <path d="M3 17.25V21h3.75l11.06-11.06-3.75-3.75L3 17.25zm2.92-1.34 8.13-8.13 1.42 1.42-8.13 8.13H5.92zM20.71 7.04a1.003 1.003 0 0 0 0-1.42l-2.34-2.34a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z" />
                 </svg>
               </label>
@@ -260,6 +284,24 @@ export default function OfficerProfile() {
             </Typography>
 
             <div className="row gy-4 gx-4">
+              {/* Unique Officer ID (READ ONLY ALWAYS) */}
+              <div className="col-md-6">
+                <TextField
+                  fullWidth
+                  name="uniqueId"
+                  label="SJD ID"
+                  value={form.uniqueId || ""}
+                  InputProps={{
+                    readOnly: true,
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <VerifiedIcon color="success" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </div>
+
               {/* First Name */}
               <div className="col-md-6">
                 <TextField
@@ -375,6 +417,25 @@ export default function OfficerProfile() {
                 />
               </div>
 
+              {/* Designation */}
+              <div className="col-md-6">
+                <TextField
+                  fullWidth
+                  name="designation"
+                  label="Designation"
+                  value={form.designation || ""}
+                  onChange={handleChange}
+                  InputProps={{
+                    readOnly: !editMode,
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <VerifiedIcon color="primary" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </div>
+
               {/* Address */}
               <div className="col-md-6">
                 <TextField
@@ -387,7 +448,7 @@ export default function OfficerProfile() {
                     readOnly: !editMode,
                     startAdornment: (
                       <InputAdornment position="start">
-                        <LocationOnIcon color="primary" />
+                        <HomeIcon color="primary" />
                       </InputAdornment>
                     ),
                   }}
@@ -406,7 +467,26 @@ export default function OfficerProfile() {
                     readOnly: !editMode,
                     startAdornment: (
                       <InputAdornment position="start">
-                        <LocationOnIcon color="primary" />
+                        <LocationCityIcon color="primary" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </div>
+
+              {/* District */}
+              <div className="col-md-6">
+                <TextField
+                  fullWidth
+                  name="district"
+                  label="District"
+                  value={form.district || ""}
+                  onChange={handleChange}
+                  InputProps={{
+                    readOnly: !editMode,
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <BusinessIcon color="primary" />
                       </InputAdornment>
                     ),
                   }}
@@ -425,7 +505,7 @@ export default function OfficerProfile() {
                     readOnly: !editMode,
                     startAdornment: (
                       <InputAdornment position="start">
-                        <LocationOnIcon color="primary" />
+                        <MapIcon color="primary" />
                       </InputAdornment>
                     ),
                   }}
@@ -475,9 +555,15 @@ export default function OfficerProfile() {
             {profile.updatedAt && (
               <Typography
                 variant="body2"
-                sx={{ mt: 4, textAlign: "center", color: "#6b7280", fontStyle: "italic" }}
+                sx={{
+                  mt: 4,
+                  textAlign: "center",
+                  color: "#6b7280",
+                  fontStyle: "italic",
+                }}
               >
-                Last Updated: {dayjs(profile.updatedAt).format("DD MMM YYYY HH:mm")}
+                Last Updated:{" "}
+                {dayjs(profile.updatedAt).format("DD MMM YYYY HH:mm")}
               </Typography>
             )}
           </Box>

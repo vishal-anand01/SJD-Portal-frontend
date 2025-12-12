@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Container,
   TextField,
@@ -15,6 +15,8 @@ import {
   Zoom,
   CircularProgress,
 } from "@mui/material";
+import { Row, Col } from "react-bootstrap";
+
 import SearchIcon from "@mui/icons-material/Search";
 import CategoryIcon from "@mui/icons-material/Category";
 import PlaceIcon from "@mui/icons-material/Place";
@@ -37,8 +39,13 @@ import axios from "../../../api/axiosConfig";
 /* -------------------------------------------------------------------------- */
 /* 🧭 Complaint Tracking Component                                            */
 /* -------------------------------------------------------------------------- */
-export default function TrackStatus() {
-  const [trackingId, setTrackingId] = useState("");
+export default function TrackStatus({
+  externalComplaint,
+  externalTrackingId,
+  mode,
+}) {
+  const [trackingId, setTrackingId] = useState(externalTrackingId || "");
+
   const [complaint, setComplaint] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -143,6 +150,20 @@ export default function TrackStatus() {
   /* ---------------------------------------------------------------------- */
   /* 🖼️ Main JSX                                                           */
   /* ---------------------------------------------------------------------- */
+
+  useEffect(() => {
+    // If trackingId came from parent component (modal)
+    if (externalTrackingId) {
+      setTrackingId(externalTrackingId); // Auto fill search box
+      handleTrack(); // Auto search
+    }
+
+    // If complaint object already provided (modal loaded earlier)
+    if (externalComplaint) {
+      setComplaint(externalComplaint);
+    }
+  }, [externalTrackingId, externalComplaint]);
+
   return (
     <Box
       sx={{
@@ -151,7 +172,7 @@ export default function TrackStatus() {
         py: 8,
       }}
     >
-      <Container maxWidth="md">
+      <Container maxWidth="lg">
         <Card
           sx={{
             borderRadius: 4,
@@ -264,16 +285,15 @@ export default function TrackStatus() {
                     {complaint.description}
                   </Typography>
 
-                  {/* 📎 Complaint Attachments (Initial) */}
+                  {/* Attachments */}
                   {(() => {
                     const files = getAttachments(complaint.attachments);
-                    if (!files || files.length === 0) {
+                    if (files.length === 0)
                       return (
                         <Alert severity="info" sx={{ mt: 3 }}>
-                          ℹ️ No attachment uploaded during complaint filing.
+                          ℹ️ No attachment uploaded for this complaint.
                         </Alert>
                       );
-                    }
 
                     return (
                       <Box sx={{ mt: 3 }}>
@@ -287,9 +307,8 @@ export default function TrackStatus() {
                           }}
                         >
                           <AttachFileIcon sx={{ color: "#2563eb", mr: 1 }} />{" "}
-                          Complaint Attachment
+                          Attachment
                         </Typography>
-
                         {files.map((file, i) => {
                           const fileUrl = `${backendBase}/${file}`;
                           if (isImage(file)) {
@@ -342,7 +361,6 @@ export default function TrackStatus() {
                             );
                           }
                         })}
-
                         {fileError && (
                           <Alert severity="error" sx={{ mt: 2 }}>
                             {fileError}
@@ -353,6 +371,7 @@ export default function TrackStatus() {
                   })()}
 
                   {/* Citizen Information */}
+
                   <Paper
                     elevation={3}
                     sx={{
@@ -368,7 +387,7 @@ export default function TrackStatus() {
                       sx={{
                         fontWeight: 700,
                         color: "#1e3a8a",
-                        mb: 1,
+                        mb: 2,
                         display: "flex",
                         alignItems: "center",
                       }}
@@ -376,60 +395,130 @@ export default function TrackStatus() {
                       <PersonIcon sx={{ mr: 1 }} /> Citizen Information
                     </Typography>
 
-                    {isOfficerComplaint ? (
-                      <>
-                        <Typography variant="body2">
-                          <strong>Name:</strong>{" "}
-                          {complaint.citizenName || "N/A"}
-                        </Typography>
-                        <Typography variant="body2">
-                          <strong>Mobile:</strong>{" "}
-                          {complaint.citizenMobile || "N/A"}
-                        </Typography>
-                        <Typography variant="body2">
-                          <strong>Village:</strong> {complaint.village || "N/A"}
-                        </Typography>
-                        <Typography variant="body2">
-                          <strong>Tehsil:</strong> {complaint.tehsil || "N/A"}
-                        </Typography>
-                        <Typography variant="body2">
-                          <strong>District:</strong>{" "}
-                          {complaint.district || "N/A"}
-                        </Typography>
-                        <Typography variant="body2">
-                          <strong>State:</strong> {complaint.state || "N/A"}
-                        </Typography>
-                        <Typography variant="body2">
-                          <strong>Pincode:</strong> {complaint.pincode || "N/A"}
-                        </Typography>
-                      </>
-                    ) : (
-                      <>
-                        <Typography variant="body2">
-                          <strong>Name:</strong>{" "}
-                          {`${complaint.citizen?.firstName || ""} ${
-                            complaint.citizen?.lastName || ""
-                          }`}
-                        </Typography>
-                        <Typography variant="body2">
-                          <strong>Email:</strong>{" "}
-                          {complaint.citizen?.email || "N/A"}
-                        </Typography>
-                        <Typography variant="body2">
-                          <strong>Phone:</strong>{" "}
-                          {complaint.citizen?.phone || "N/A"}
-                        </Typography>
-                        <Typography variant="body2">
-                          <strong>Address:</strong>{" "}
-                          {`${complaint.citizen?.address || ""}, ${
-                            complaint.citizen?.city || ""
-                          }, ${complaint.citizen?.state || ""}, ${
-                            complaint.citizen?.country || ""
-                          } ${complaint.citizen?.pincode || ""}`}
-                        </Typography>
-                      </>
-                    )}
+                    <Row className="gy-2 gx-3">
+                      {/* ✅ 1️⃣ If complaint submitted by PUBLIC (citizenName exists), ALWAYS show public fields */}
+                      {complaint.sourceType === "Public" ? (
+                        <>
+                          <Col md={6}>
+                            <Typography variant="body2">
+                              <strong>Name:</strong>{" "}
+                              {complaint.citizenName || "N/A"}
+                            </Typography>
+                          </Col>
+
+                          <Col md={6}>
+                            <Typography variant="body2">
+                              <strong>Mobile:</strong>{" "}
+                              {complaint.citizenMobile || "N/A"}
+                            </Typography>
+                          </Col>
+
+                          <Col md={6}>
+                            <Typography variant="body2">
+                              <strong>Date of Birth:</strong>{" "}
+                              {complaint.citizenDob
+                                ? new Date(
+                                    complaint.citizenDob
+                                  ).toLocaleDateString()
+                                : "N/A"}
+                            </Typography>
+                          </Col>
+
+                          <Col md={6}>
+                            <Typography variant="body2">
+                              <strong>Village:</strong>{" "}
+                              {complaint.village || "N/A"}
+                            </Typography>
+                          </Col>
+
+                          <Col md={6}>
+                            <Typography variant="body2">
+                              <strong>Block:</strong> {complaint.block || "N/A"}
+                            </Typography>
+                          </Col>
+
+                          <Col md={6}>
+                            <Typography variant="body2">
+                              <strong>Tehsil:</strong>{" "}
+                              {complaint.tehsil || "N/A"}
+                            </Typography>
+                          </Col>
+
+                          <Col md={6}>
+                            <Typography variant="body2">
+                              <strong>District:</strong>{" "}
+                              {complaint.district || "N/A"}
+                            </Typography>
+                          </Col>
+
+                          <Col md={6}>
+                            <Typography variant="body2">
+                              <strong>State:</strong> {complaint.state || "N/A"}
+                            </Typography>
+                          </Col>
+
+                          <Col md={6}>
+                            <Typography variant="body2">
+                              <strong>Pincode:</strong>{" "}
+                              {complaint.pincode || "N/A"}
+                            </Typography>
+                          </Col>
+
+                          <Col md={12}>
+                            <Typography variant="body2">
+                              <strong>Landmark:</strong>{" "}
+                              {complaint.landmark || "N/A"}
+                            </Typography>
+                          </Col>
+                        </>
+                      ) : (
+                        <>
+                          {/* ✅ 2️⃣ If complaint linked with real citizen user (filed by logged user) */}
+                          <Col md={6}>
+                            <Typography variant="body2">
+                              <strong>Name:</strong>{" "}
+                              {`${complaint.citizen?.firstName || ""} ${
+                                complaint.citizen?.lastName || ""
+                              }`}
+                            </Typography>
+                          </Col>
+
+                          <Col md={6}>
+                            <Typography variant="body2">
+                              <strong>Email:</strong>{" "}
+                              {complaint.citizen?.email || "N/A"}
+                            </Typography>
+                          </Col>
+
+                          <Col md={6}>
+                            <Typography variant="body2">
+                              <strong>Phone:</strong>{" "}
+                              {complaint.citizen?.phone || "N/A"}
+                            </Typography>
+                          </Col>
+
+                          <Col md={6}>
+                            <Typography variant="body2">
+                              <strong>Gender:</strong>{" "}
+                              {complaint.citizen?.gender || "N/A"}
+                            </Typography>
+                          </Col>
+
+                          <Col md={12}>
+                            <Typography variant="body2">
+                              <strong>Address:</strong>{" "}
+                              {`${complaint.citizen?.address || ""}, ${
+                                complaint.citizen?.city || ""
+                              }, ${complaint.citizen?.state || ""}, ${
+                                complaint.citizen?.country || ""
+                              } ${complaint.citizen?.pincode || ""}`}
+                            </Typography>
+                          </Col>
+                        </>
+                      )}
+                    </Row>
                   </Paper>
+
                   {/* Filed By (Officer) Section */}
                   {isOfficerComplaint && complaint.filedBy && (
                     <Paper

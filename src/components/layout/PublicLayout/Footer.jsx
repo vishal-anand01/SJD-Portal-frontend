@@ -28,7 +28,7 @@ export default function Footer() {
                 letterSpacing: "1px",
               }}
             >
-              जनता दरबार
+             सरकार जनता के द्वार
             </Typography>
 
             <Typography

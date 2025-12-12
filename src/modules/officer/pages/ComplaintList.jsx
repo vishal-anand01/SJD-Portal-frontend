@@ -30,6 +30,7 @@ import ForwardIcon from "@mui/icons-material/Send";
 import ViewComplaintDialog from "../dialogs/ViewComplaintDialog";
 import UpdateComplaintDialog from "../dialogs/UpdateComplaintDialog";
 import ForwardComplaintDialog from "../dialogs/ForwardComplaintDialog";
+import TrackComplaintDialog from "../../dm/models/TrackComplaintDialog";
 
 export default function ComplaintList() {
   const [complaints, setComplaints] = useState([]);
@@ -192,7 +193,6 @@ export default function ComplaintList() {
                     "Citizen",
                     "Filed By",
                     "Title",
-                    "Category",
                     "Location",
                     "Status",
                     "Date",
@@ -222,7 +222,17 @@ export default function ComplaintList() {
                       <TableCell>{page * rowsPerPage + index + 1}</TableCell>
 
                       {/* 🔢 Tracking ID */}
-                      <TableCell sx={{ fontWeight: 600 }}>
+                      <TableCell
+                        sx={{
+                          fontWeight: 600,
+                          color: "#1e40af",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => {
+                          setSelectedComplaint(c);
+                          setDialog({ open: true, type: "track" });
+                        }}
+                      >
                         {c.trackingId}
                       </TableCell>
 
@@ -250,7 +260,7 @@ export default function ComplaintList() {
 
                       {/* 📋 Complaint Info */}
                       <TableCell>{c.title}</TableCell>
-                      <TableCell>{c.category}</TableCell>
+                      
                       <TableCell>{c.location || "N/A"}</TableCell>
 
                       {/* 🟢 Status */}
@@ -342,6 +352,14 @@ export default function ComplaintList() {
           complaint={selectedComplaint}
           onClose={closeDialog}
           refreshComplaints={fetchComplaints}
+        />
+      )}
+
+      {dialog.type === "track" && selectedComplaint && (
+        <TrackComplaintDialog
+          open={dialog.open}
+          onClose={closeDialog}
+          trackingId={selectedComplaint?.trackingId}
         />
       )}
     </Box>

@@ -134,9 +134,14 @@ export default function ViewAssignmentModal({ open, onClose, assignment }) {
     doc.setFont("helvetica", "bold");
     doc.text("Notes / Instructions", 14, finalY);
     doc.setFont("helvetica", "normal");
-    doc.text(assignment.notes || "No additional instructions provided.", 14, finalY + 6, {
-      maxWidth: 180,
-    });
+    doc.text(
+      assignment.notes || "No additional instructions provided.",
+      14,
+      finalY + 6,
+      {
+        maxWidth: 180,
+      }
+    );
 
     doc.save(`Assignment_${assignment._id}.pdf`);
   };
@@ -145,7 +150,8 @@ export default function ViewAssignmentModal({ open, onClose, assignment }) {
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle
         sx={{
-          background: "linear-gradient(90deg,#1e3a8a 0%,#2563eb 50%,#38bdf8 100%)",
+          background:
+            "linear-gradient(90deg,#1e3a8a 0%,#2563eb 50%,#38bdf8 100%)",
           color: "white",
           textAlign: "center",
           fontWeight: 700,
@@ -183,7 +189,8 @@ export default function ViewAssignmentModal({ open, onClose, assignment }) {
           <Row className="gy-2 gx-3">
             <Col md={6}>
               <Typography variant="body2">
-                <strong>District:</strong> {assignment.location?.district || "N/A"}
+                <strong>District:</strong>{" "}
+                {assignment.location?.district || "N/A"}
               </Typography>
             </Col>
             <Col md={6}>
@@ -194,11 +201,15 @@ export default function ViewAssignmentModal({ open, onClose, assignment }) {
             </Col>
             <Col md={6}>
               <Typography variant="body2">
-                <strong>Village:</strong> {assignment.location?.village || "N/A"}
+                <strong>Village:</strong>{" "}
+                {assignment.location?.village || "N/A"}
               </Typography>
             </Col>
             <Col md={6}>
-              <Typography variant="body2" sx={{ display: "flex", alignItems: "center" }}>
+              <Typography
+                variant="body2"
+                sx={{ display: "flex", alignItems: "center" }}
+              >
                 <PriorityHighIcon sx={{ mr: 1, color: "#dc2626" }} />
                 <strong>Priority:</strong>&nbsp;
                 <Chip
@@ -264,46 +275,87 @@ export default function ViewAssignmentModal({ open, onClose, assignment }) {
 
           <Row className="gy-1">
             <Col md={6}>
-              <Typography><strong>Name:</strong> {officer.firstName} {officer.lastName}</Typography>
+              <Typography variant="body2">
+                <strong>SJD ID:</strong> {officer.uniqueId || "—"}
+              </Typography>
             </Col>
             <Col md={6}>
-              <Typography><strong>Email:</strong> {officer.email || "N/A"}</Typography>
+              <Typography variant="body2">
+                <strong>Name:</strong> {officer.firstName} {officer.lastName}
+              </Typography>
             </Col>
             <Col md={6}>
-              <Typography><strong>Phone:</strong> {officer.phone || "N/A"}</Typography>
+              <Typography variant="body2">
+                <strong>Email:</strong> {officer.email || "N/A"}
+              </Typography>
             </Col>
             <Col md={6}>
-              <Typography><strong>Gender:</strong> {officer.gender || "N/A"}</Typography>
+              <Typography variant="body2">
+                <strong>Phone:</strong> {officer.phone || "N/A"}
+              </Typography>
             </Col>
             <Col md={6}>
-              <Typography><strong>Date of Birth:</strong> {officer.dob ? dayjs(officer.dob).format("DD MMM YYYY") : "N/A"}</Typography>
+              <Typography variant="body2">
+                <strong>Designation:</strong> {officer.designation || "—"}
+              </Typography>
             </Col>
             <Col md={6}>
-              <Typography><strong>Address:</strong> {officer.address || "N/A"}</Typography>
+              <Typography variant="body2">
+                <strong>Gender:</strong> {officer.gender || "N/A"}
+              </Typography>
             </Col>
             <Col md={6}>
-              <Typography><strong>City:</strong> {officer.city || "N/A"}</Typography>
+              <Typography variant="body2">
+                <strong>Date of Birth:</strong>{" "}
+                {officer.dob ? dayjs(officer.dob).format("DD MMM YYYY") : "N/A"}
+              </Typography>
+            </Col>
+            <Col md={6} >
+              <Typography variant="body2">
+                <strong>Address:</strong> {officer.address || "N/A"}
+              </Typography>
             </Col>
             <Col md={6}>
-              <Typography><strong>State:</strong> {officer.state || "N/A"}</Typography>
+              <Typography variant="body2">
+                <strong>City:</strong> {officer.city || "N/A"}
+              </Typography>
             </Col>
             <Col md={6}>
-              <Typography><strong>Country:</strong> {officer.country || "N/A"}</Typography>
+              <Typography variant="body2">
+                <strong>District:</strong> {officer.district || "N/A"}
+              </Typography>
             </Col>
             <Col md={6}>
-              <Typography><strong>Pincode:</strong> {officer.pincode || "N/A"}</Typography>
+              <Typography variant="body2">
+                <strong>State:</strong> {officer.state || "N/A"}
+              </Typography>
             </Col>
             <Col md={6}>
-              <Typography><strong>Role:</strong> {officer.role || "Officer"}</Typography>
+              <Typography variant="body2">
+                <strong>Country:</strong> {officer.country || "N/A"}
+              </Typography>
             </Col>
             <Col md={6}>
-              <Typography><strong>Joined On:</strong> {officer.createdAt ? dayjs(officer.createdAt).format("DD MMM YYYY") : "N/A"}</Typography>
+              <Typography variant="body2">
+                <strong>Pincode:</strong> {officer.pincode || "N/A"}
+              </Typography>
+            </Col>
+
+            <Col md={6}>
+              <Typography variant="body2">
+                <strong>Register On Portal:</strong>{" "}
+                {officer.createdAt
+                  ? dayjs(officer.createdAt).format("DD MMM YYYY")
+                  : "N/A"}
+              </Typography>
             </Col>
             <Col md={6}>
-              <Typography><strong>Last Active:</strong> {officer.lastActiveAt ? dayjs(officer.lastActiveAt).format("DD MMM YYYY HH:mm") : "—"}</Typography>
-            </Col>
-            <Col md={6}>
-              <Typography><strong>Officer ID:</strong> {officer._id}</Typography>
+              <Typography variant="body2">
+                <strong>Last Active:</strong>{" "}
+                {officer.lastActiveAt
+                  ? dayjs(officer.lastActiveAt).format("DD MMM YYYY HH:mm")
+                  : "—"}
+              </Typography>
             </Col>
           </Row>
         </Paper>

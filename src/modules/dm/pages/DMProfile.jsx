@@ -12,9 +12,14 @@ import {
   Alert,
   Button,
 } from "@mui/material";
+import WorkIcon from "@mui/icons-material/Work";
 import { deepOrange } from "@mui/material/colors";
 import axios from "../../../api/axiosConfig";
 import useAuth from "../../../hooks/useAuth";
+import HomeIcon from "@mui/icons-material/Home";
+import LocationCityIcon from "@mui/icons-material/LocationCity";
+import BusinessIcon from "@mui/icons-material/Business";
+import MapIcon from "@mui/icons-material/Map";
 
 import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
@@ -428,6 +433,24 @@ export default function DMProfile() {
                 />
               </div>
 
+              {/* Designation */}
+              <div className="col-md-6">
+                <TextField
+                  fullWidth
+                  name="designation"
+                  label="Designation"
+                  value={form.designation || ""}
+                  onChange={handleChange}
+                  InputProps={{
+                    readOnly: !editMode,
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <WorkIcon color="primary" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </div>
               {/* Address */}
               <div className="col-md-6">
                 <TextField
@@ -440,7 +463,7 @@ export default function DMProfile() {
                     readOnly: !editMode,
                     startAdornment: (
                       <InputAdornment position="start">
-                        <LocationOnIcon color="primary" />
+                        <HomeIcon color="primary" />
                       </InputAdornment>
                     ),
                   }}
@@ -459,7 +482,7 @@ export default function DMProfile() {
                     readOnly: !editMode,
                     startAdornment: (
                       <InputAdornment position="start">
-                        <LocationOnIcon color="primary" />
+                        <LocationCityIcon color="primary" />
                       </InputAdornment>
                     ),
                   }}
@@ -478,7 +501,7 @@ export default function DMProfile() {
                     readOnly: !editMode,
                     startAdornment: (
                       <InputAdornment position="start">
-                        <LocationOnIcon color="primary" />
+                        <BusinessIcon color="primary" />
                       </InputAdornment>
                     ),
                   }}
@@ -497,7 +520,7 @@ export default function DMProfile() {
                     readOnly: !editMode,
                     startAdornment: (
                       <InputAdornment position="start">
-                        <LocationOnIcon color="primary" />
+                        <MapIcon color="primary" />
                       </InputAdornment>
                     ),
                   }}

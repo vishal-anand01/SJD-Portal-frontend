@@ -2,7 +2,9 @@ import React, { useEffect, useState, useMemo } from "react";
 import dayjs from "dayjs";
 import axios from "../../../api/axiosConfig";
 import ViewAssignmentModal from "../models/ViewAssignmentModal";
-import DMVisitStatusModal from "../models/DMVisitStatusModal"
+import DMVisitStatusModal from "../models/DMVisitStatusModal";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { IconButton, Menu, MenuItem } from "@mui/material";
 
 export default function AssignmentsList() {
   const [assignments, setAssignments] = useState([]);
@@ -12,6 +14,8 @@ export default function AssignmentsList() {
 
   const [statusOpen, setStatusOpen] = useState(false);
   const [statusAssignment, setStatusAssignment] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [menuRow, setMenuRow] = useState(null);
 
   // pagination state
   const [page, setPage] = useState(0);
@@ -153,7 +157,7 @@ export default function AssignmentsList() {
                   <th style={{ width: 180 }}>Village</th>
                   <th style={{ width: 130 }}>Priority</th>
                   <th style={{ width: 160 }}>Visit Date</th>
-                  <th>Assigned By (DM)</th>
+                
                   <th style={{ width: 120 }} className="text-center">
                     Action
                   </th>
@@ -207,50 +211,46 @@ export default function AssignmentsList() {
                         : "—"}
                     </td>
 
-                    {/* DM */}
-                    <td>
-                      <div className="d-flex flex-column">
-                        <span className="fw-semibold">
-                          {(row?.dm?.firstName || "") +
-                            " " +
-                            (row?.dm?.lastName || "")}
-                        </span>
-                        <small className="text-muted">
-                          {row?.dm?.email || "N/A"}
-                        </small>
-                      </div>
-                    </td>
-
+                 
                     {/* Action */}
                     <td className="text-center">
-                      <button
-                        type="button"
-                        className="btn btn-outline-primary btn-sm fw-semibold"
-                        onClick={() => handleView(row)}
-                        style={{
-                          borderColor: "#1e3a8a",
-                          color: "#1e3a8a",
-                        }}
-                        onMouseOver={(e) => {
-                          e.currentTarget.style.backgroundColor = "#1e3a8a";
-                          e.currentTarget.style.color = "#fff";
-                          e.currentTarget.style.boxShadow =
-                            "0 4px 12px rgba(30,58,138,0.3)";
-                        }}
-                        onMouseOut={(e) => {
-                          e.currentTarget.style.backgroundColor = "transparent";
-                          e.currentTarget.style.color = "#1e3a8a";
-                          e.currentTarget.style.boxShadow = "none";
+                      <IconButton
+                        onClick={(e) => {
+                          setAnchorEl(e.currentTarget);
+                          setMenuRow(row);
                         }}
                       >
-                        View
-                      </button>
-                      <button
-                        className="btn btn-outline-info btn-sm fw-semibold ms-2"
-                        onClick={() => handleVisitStatus(row)}
+                        <MoreVertIcon />
+                      </IconButton>
+
+                      <Menu
+                        anchorEl={anchorEl}
+                        open={menuRow?._id === row._id}
+                        onClose={() => {
+                          setAnchorEl(null);
+                          setMenuRow(null);
+                        }}
                       >
-                        Visit Status
-                      </button>
+                        <MenuItem
+                          onClick={() => {
+                            handleView(row);
+                            setAnchorEl(null);
+                            setMenuRow(null);
+                          }}
+                        >
+                          View
+                        </MenuItem>
+
+                        <MenuItem
+                          onClick={() => {
+                            handleVisitStatus(row);
+                            setAnchorEl(null);
+                            setMenuRow(null);
+                          }}
+                        >
+                          Visit Status
+                        </MenuItem>
+                      </Menu>
                     </td>
                   </tr>
                 ))}

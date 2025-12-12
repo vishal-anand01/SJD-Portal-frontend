@@ -83,7 +83,7 @@ export default function About() {
             transition={{ duration: 0.8 }}
           >
             <Typography variant="h2" sx={{ fontWeight: 900, mb: 2 }}>
-              About <span style={{ color: "#fbbf24" }}>Janta Darbar</span>
+              About <span style={{ color: "#fbbf24" }}>Sarkar Janata ke Dwaar</span>
             </Typography>
             <Typography
               variant="h6"

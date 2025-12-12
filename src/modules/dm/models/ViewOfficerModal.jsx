@@ -85,8 +85,6 @@ export default function ViewOfficerModal({ open, onClose, officer }) {
             p: 4,
           }}
         >
-        
-
           {/* MAIN DETAILS (Bootstrap grid) */}
           <Typography
             variant="h6"
@@ -102,12 +100,31 @@ export default function ViewOfficerModal({ open, onClose, officer }) {
           </Typography>
 
           <div className="row g-3">
+            {/* Unique SJD ID */}
+            <div className="col-12 col-md-6">
+              <TextField
+                fullWidth
+                label="SJD ID"
+                value={fieldValue(officer.uniqueId)}
+                InputProps={{
+                  readOnly: true,
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <VerifiedIcon color="success" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </div>
+
             {/* Full Name */}
             <div className="col-12 col-md-6">
               <TextField
                 fullWidth
                 label="Full Name"
-                value={`${officer.firstName || ""} ${officer.lastName || ""}`.trim()}
+                value={`${officer.firstName || ""} ${
+                  officer.lastName || ""
+                }`.trim()}
                 InputProps={{
                   readOnly: true,
                   startAdornment: (
@@ -189,34 +206,17 @@ export default function ViewOfficerModal({ open, onClose, officer }) {
               />
             </div>
 
-            {/* Country */}
+            {/* Designation */}
             <div className="col-12 col-md-6">
               <TextField
                 fullWidth
-                label="Country"
-                value={fieldValue(officer.country)}
+                label="Designation"
+                value={fieldValue(officer.designation)}
                 InputProps={{
                   readOnly: true,
                   startAdornment: (
                     <InputAdornment position="start">
-                      <PublicIcon color="primary" />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </div>
-
-            {/* Department */}
-            <div className="col-12 col-md-6">
-              <TextField
-                fullWidth
-                label="Department"
-                value={officer.department?.name || "Not Assigned"}
-                InputProps={{
-                  readOnly: true,
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <BusinessIcon color="primary" />
+                      <WorkIcon color="primary" />
                     </InputAdornment>
                   ),
                 }}
@@ -230,7 +230,9 @@ export default function ViewOfficerModal({ open, onClose, officer }) {
                 label="Address"
                 value={
                   officer.address
-                    ? `${officer.address}, ${officer.city || ""}, ${officer.state || ""}`
+                    ? `${officer.address}, ${officer.city || ""}, ${
+                        officer.district || ""
+                      }, ${officer.state || ""}`
                     : "—"
                 }
                 InputProps={{
@@ -238,6 +240,23 @@ export default function ViewOfficerModal({ open, onClose, officer }) {
                   startAdornment: (
                     <InputAdornment position="start">
                       <LocationOnIcon color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </div>
+
+            {/* Country */}
+            <div className="col-12 col-md-6">
+              <TextField
+                fullWidth
+                label="Country"
+                value={fieldValue(officer.country)}
+                InputProps={{
+                  readOnly: true,
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PublicIcon color="primary" />
                     </InputAdornment>
                   ),
                 }}
@@ -266,28 +285,11 @@ export default function ViewOfficerModal({ open, onClose, officer }) {
           <Divider sx={{ my: 4 }} />
 
           <div className="row g-3">
-            {/* Role */}
-            <div className="col-12 col-md-6">
-              <TextField
-                fullWidth
-                label="Role"
-                value={officer.role?.toUpperCase() || "OFFICER"}
-                InputProps={{
-                  readOnly: true,
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <WorkIcon color="primary" />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </div>
-
             {/* Joined On */}
             <div className="col-12 col-md-6">
               <TextField
                 fullWidth
-                label="Joined On"
+                label="Register On Portal"
                 value={
                   officer.createdAt
                     ? dayjs(officer.createdAt).format("DD MMM YYYY")
@@ -319,23 +321,6 @@ export default function ViewOfficerModal({ open, onClose, officer }) {
                   startAdornment: (
                     <InputAdornment position="start">
                       <AccessTimeIcon color="primary" />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </div>
-
-            {/* Officer ID */}
-            <div className="col-12 col-md-6">
-              <TextField
-                fullWidth
-                label="Officer ID"
-                value={officer._id}
-                InputProps={{
-                  readOnly: true,
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <BadgeIcon color="primary" />
                     </InputAdornment>
                   ),
                 }}

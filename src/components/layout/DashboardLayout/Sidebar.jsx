@@ -1,3 +1,4 @@
+// frontend/src/components/layout/Sidebar.jsx
 import React from "react";
 import {
   Drawer,
@@ -10,9 +11,17 @@ import {
   Typography,
   IconButton,
   Avatar,
+  Popper,
+  Paper,
+  ClickAwayListener,
 } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
+
+import UpdateIcon from "@mui/icons-material/Update";
 import ReportProblemIcon from "@mui/icons-material/ReportProblem";
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import ApartmentIcon from "@mui/icons-material/Apartment";
+import BadgeIcon from "@mui/icons-material/Badge";
 
 // 📦 ICONS
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -26,8 +35,8 @@ import GroupIcon from "@mui/icons-material/Group";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 
-// 🧑‍⚖️ DM Icons
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import TimelineIcon from "@mui/icons-material/Timeline";
@@ -43,6 +52,67 @@ export default function Sidebar({
   const location = useLocation();
   const drawerWidth = 260;
   const collapsedWidth = 80;
+
+  // openMenu keeps track of which parent is currently open (expanded sidebar).
+  const [openMenu, setOpenMenu] = React.useState({});
+
+  // Popper state for collapsed sidebar submenus
+  const [popperOpen, setPopperOpen] = React.useState(false);
+  const [popperAnchor, setPopperAnchor] = React.useState(null);
+  const [popperMenuLabel, setPopperMenuLabel] = React.useState(null);
+  const popperTimeoutRef = React.useRef(null);
+
+  // Toggle a parent menu. Opening one will close all others.
+  const toggleMenu = (label) => {
+    setOpenMenu((prev) => {
+      const currentlyOpen = !!prev[label];
+      // if currently open -> close it
+      if (currentlyOpen) return {};
+      // open this and close others
+      return { [label]: true };
+    });
+  };
+
+  // Close all open parents
+  const closeAllMenus = () => setOpenMenu({});
+
+  // Popper handlers (used only when collapsed)
+  const openPopper = (label, event) => {
+    // clear any pending close
+    if (popperTimeoutRef.current) {
+      clearTimeout(popperTimeoutRef.current);
+      popperTimeoutRef.current = null;
+    }
+    setPopperAnchor(event.currentTarget);
+    setPopperMenuLabel(label);
+    setPopperOpen(true);
+  };
+
+  const scheduleClosePopper = () => {
+    // small delay so mouse can move between anchor and popper
+    if (popperTimeoutRef.current) clearTimeout(popperTimeoutRef.current);
+    popperTimeoutRef.current = setTimeout(() => {
+      setPopperOpen(false);
+      setPopperAnchor(null);
+      setPopperMenuLabel(null);
+      popperTimeoutRef.current = null;
+    }, 150);
+  };
+
+  const closePopperImmediately = () => {
+    if (popperTimeoutRef.current) {
+      clearTimeout(popperTimeoutRef.current);
+      popperTimeoutRef.current = null;
+    }
+    setPopperOpen(false);
+    setPopperAnchor(null);
+    setPopperMenuLabel(null);
+  };
+
+  /* ---------------------------
+     MENU DEFINITIONS
+     Each child item may include icon (optional)
+  ----------------------------*/
 
   // 🌍 PUBLIC MENU
   const publicMenu = [
@@ -75,8 +145,16 @@ export default function Sidebar({
       icon: <AssignmentIcon />,
     },
     { label: "Complaints", path: "/officer/complaints", icon: <ListAltIcon /> },
-    { label: "My Assignments", path: "/officer/assignments", icon: <AssignmentTurnedInIcon /> },
-
+    {
+      label: "Track Complaints",
+      path: "/officer/track-status",
+      icon: <TrackChangesIcon />,
+    },
+    {
+      label: "My Assignments",
+      path: "/officer/assignments",
+      icon: <AssignmentTurnedInIcon />,
+    },
   ];
 
   // 🧑‍⚖️ DM MENU (District Magistrate)
@@ -110,20 +188,19 @@ export default function Sidebar({
       icon: <DashboardIcon />,
     },
     {
-      label: "Assigned Complaints",
-      path: "/department/assigned",
-      icon: <AssignmentIcon />,
-    },
-    { label: "Reports", path: "/department/reports", icon: <ReportIcon /> },
-    {
-      label: "Update Status",
-      path: "/department/update-status",
-      icon: <TrackChangesIcon />,
-    },
-    {
       label: "Profile",
       path: "/department/profile",
       icon: <AccountCircleIcon />,
+    },
+    {
+      label: "Assigned Complaints",
+      path: "/department/assigned-complaints",
+      icon: <AssignmentTurnedInIcon />,
+    },
+    {
+      label: "Track Status",
+      path: "/department/track-status",
+      icon: <TrackChangesIcon />,
     },
   ];
 
@@ -140,32 +217,69 @@ export default function Sidebar({
     { label: "Settings", path: "/admin/settings", icon: <SettingsIcon /> },
   ];
 
-  // 👑 SUPERADMIN MENU
+  // 👑 SUPERADMIN MENU (FINAL COMPLETE) - children include icons
   const superAdminMenu = [
     {
       label: "Dashboard",
       path: "/superadmin/dashboard",
       icon: <DashboardIcon />,
     },
+
     {
-      label: "Manage Users",
-      path: "/superadmin/manage-users",
+      label: "DM Management",
+      icon: <SupervisorAccountIcon />,
+      children: [
+        { label: "DM List", path: "/superadmin/dm", icon: <ListAltIcon /> },
+        { label: "Add DM", path: "/superadmin/dm/add", icon: <AssignmentIcon /> },
+      ],
+    },
+
+    {
+      label: "Department Management",
+      icon: <ApartmentIcon />,
+      children: [
+        {
+          label: "Department List",
+          path: "/superadmin/departments",
+          icon: <ListAltIcon />,
+        },
+        {
+          label: "Add Department",
+          path: "/superadmin/departments/add",
+          icon: <AssignmentIcon />,
+        },
+      ],
+    },
+
+    {
+      label: "Officer Management",
+      icon: <BadgeIcon />,
+      children: [
+        { label: "Officer List", path: "/superadmin/officers", icon: <ListAltIcon /> },
+        { label: "Add Officer", path: "/superadmin/officers/add", icon: <AssignmentIcon /> },
+      ],
+    },
+
+    {
+      label: "Public Users",
       icon: <GroupIcon />,
+      children: [
+        { label: "Public List", path: "/superadmin/public", icon: <ListAltIcon /> },
+        { label: "Add Public User", path: "/superadmin/public/add", icon: <AssignmentIcon /> },
+      ],
     },
+
     {
-      label: "Manage Departments",
-      path: "/superadmin/manage-departments",
-      icon: <AssignmentIcon />,
+      label: "Complaints",
+      icon: <ReportIcon />,
+      children: [
+        { label: "All Complaints", path: "/superadmin/complaints/all", icon: <ListAltIcon /> },
+        { label: "Track Complaint", path: "/superadmin/complaints/track", icon: <TrackChangesIcon /> },
+      ],
     },
-    {
-      label: "System Settings",
-      path: "/superadmin/system-settings",
-      icon: <SettingsIcon />,
-    },
-    { label: "Reports", path: "/superadmin/reports", icon: <ReportIcon /> },
   ];
 
-  // 🎯 SELECT MENU BASED ON ROLE
+  // choose menu based on role
   const menuItems =
     role === "officer"
       ? officerMenu
@@ -179,7 +293,44 @@ export default function Sidebar({
       ? dmMenu
       : publicMenu;
 
-  // 🎨 Sidebar Content
+  /* ---------------------------
+     Helper: render tooltip content when collapsed
+     We'll show a small list of child items (read-only) for preview
+  ----------------------------*/
+  const CollapsedTooltipContent = ({ item }) => {
+    if (!item.children) {
+      return <Typography sx={{ fontWeight: 600 }}>{item.label}</Typography>;
+    }
+    return (
+      <Box sx={{ minWidth: 220 }}>
+        <Typography sx={{ fontWeight: 700, mb: 1 }}>{item.label}</Typography>
+        {item.children.map((c, i) => (
+          <Box
+            key={i}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              py: 0.5,
+            }}
+          >
+            {c.icon ? (
+              <Box sx={{ display: "flex", alignItems: "center", minWidth: 26 }}>
+                {c.icon}
+              </Box>
+            ) : (
+              <FiberManualRecordIcon sx={{ fontSize: 10, color: "grey.600", minWidth: 26 }} />
+            )}
+            <Typography sx={{ fontSize: 14 }}>{c.label}</Typography>
+          </Box>
+        ))}
+      </Box>
+    );
+  };
+
+  /* ---------------------------
+     Drawer content
+  ----------------------------*/
   const drawerContent = (
     <Box
       sx={{
@@ -242,54 +393,252 @@ export default function Sidebar({
 
         {/* Menu Items */}
         <List sx={{ mt: 1 }}>
-          {menuItems.map((item) => {
-            const active = location.pathname === item.path;
-            return (
-              <Tooltip
-                key={item.path}
-                title={collapsed ? item.label : ""}
-                placement="right"
-              >
-                <ListItemButton
-                  component={Link}
-                  to={item.path}
-                  onClick={() => mobileOpen && setMobileOpen(false)}
-                  sx={{
-                    color: active ? "#1e3a8a" : "#475569",
-                    borderRadius: "10px",
-                    mx: 1,
-                    mb: 0.5,
-                    py: 1.3,
-                    fontWeight: active ? 600 : 500,
-                    background: active
-                      ? "linear-gradient(90deg, rgba(30,58,138,0.1), rgba(30,58,138,0.05))"
-                      : "transparent",
-                    transition: "all 0.25s ease",
-                    "&:hover": {
-                      background: "rgba(30,58,138,0.08)",
-                      transform: "translateX(4px)",
-                    },
-                  }}
+          {menuItems.map((item, index) => {
+            // active detection: strict equality for direct paths,
+            // for parent we check startsWith so /superadmin/dm/edit/... still marks child active.
+            const isActive =
+              item.path && (location.pathname === item.path || location.pathname.startsWith(item.path + "/"));
+
+            // decide whether to show tooltip: only when collapsed AND item has no children
+            const showTooltip = collapsed && !item.children;
+
+            // CASE 1: simple menu item (no children)
+            if (!item.children) {
+              return (
+                <Tooltip
+                  key={index}
+                  title={showTooltip ? <CollapsedTooltipContent item={item} /> : null}
+                  placement="right"
+                  arrow
+                  disableHoverListener={!showTooltip}
                 >
-                  <ListItemIcon
+                  <ListItemButton
+                    component={Link}
+                    to={item.path}
+                    onClick={() => {
+                      // if dashboard clicked -> close all open menus
+                      if (item.path && item.path.endsWith("/dashboard")) {
+                        closeAllMenus();
+                      }
+                      if (mobileOpen) setMobileOpen(false);
+                    }}
                     sx={{
-                      color: active ? "#1e3a8a" : "#94a3b8",
-                      minWidth: 40,
-                      transition: "color 0.2s ease",
+                      color: isActive ? "#1e3a8a" : "#475569",
+                      borderRadius: "10px",
+                      mx: 1,
+                      mb: 0.5,
+                      py: 1.3,
+                      fontWeight: isActive ? 600 : 500,
+                      background: isActive
+                        ? "linear-gradient(90deg, rgba(30,58,138,0.1), rgba(30,58,138,0.05))"
+                        : "transparent",
+                      transition: "all 0.25s ease",
+                      "&:hover": {
+                        background: "rgba(30,58,138,0.06)",
+                        transform: "translateX(4px)",
+                      },
                     }}
                   >
-                    {item.icon}
-                  </ListItemIcon>
-                  {!collapsed && (
-                    <ListItemText
-                      primary={item.label}
-                      primaryTypographyProps={{
-                        sx: { fontSize: 15, fontWeight: active ? 600 : 500 },
+                    <ListItemIcon
+                      sx={{
+                        color: isActive ? "#1e3a8a" : "#94a3b8",
+                        minWidth: 40,
                       }}
-                    />
-                  )}
-                </ListItemButton>
-              </Tooltip>
+                    >
+                      {item.icon}
+                    </ListItemIcon>
+
+                    {!collapsed && (
+                      <ListItemText
+                        primary={item.label}
+                        primaryTypographyProps={{
+                          sx: { fontSize: 15, fontWeight: isActive ? 600 : 500 },
+                        }}
+                      />
+                    )}
+                  </ListItemButton>
+                </Tooltip>
+              );
+            }
+
+            // CASE 2: parent menu with children (submenu)
+            const menuOpen = !!openMenu[item.label];
+
+            // For collapsed state: attach hover handlers to open popper
+            const parentHandlers = collapsed
+              ? {
+                  onMouseEnter: (e) => openPopper(item.label, e),
+                  onMouseLeave: () => scheduleClosePopper(),
+                }
+              : {
+                  onClick: () => toggleMenu(item.label),
+                };
+
+            return (
+              <Box key={index}>
+                <Tooltip
+                  key={`parent-tooltip-${index}`}
+                  title={showTooltip ? <CollapsedTooltipContent item={item} /> : null}
+                  placement="right"
+                  arrow
+                  disableHoverListener={!showTooltip}
+                >
+                  <ListItemButton
+                    {...parentHandlers}
+                    sx={{
+                      mx: 1,
+                      mb: 0.5,
+                      borderRadius: "10px",
+                      color: "#475569",
+                      background: menuOpen
+                        ? "linear-gradient(90deg, rgba(30,58,138,0.04), rgba(30,58,138,0.02))"
+                        : "transparent",
+                      "&:hover": { background: "rgba(30,58,138,0.06)" },
+                      cursor: "pointer",
+                    }}
+                  >
+                    <ListItemIcon sx={{ minWidth: 40, color: menuOpen ? "#1e3a8a" : "#94a3b8" }}>
+                      {item.icon}
+                    </ListItemIcon>
+
+                    {!collapsed && (
+                      <ListItemText
+                        primary={item.label}
+                        primaryTypographyProps={{
+                          sx: { fontSize: 15, fontWeight: menuOpen ? 700 : 500 },
+                        }}
+                      />
+                    )}
+
+                    {!collapsed && (
+                      <ChevronRightIcon
+                        sx={{
+                          transform: menuOpen ? "rotate(90deg)" : "rotate(0deg)",
+                          transition: "0.2s",
+                          color: "#64748b",
+                        }}
+                      />
+                    )}
+                  </ListItemButton>
+                </Tooltip>
+
+                {/* Submenu — rendered only when parent is open and sidebar not collapsed */}
+                {menuOpen && !collapsed && (
+                  <List sx={{ pl: 7, transition: "all 0.2s ease" }}>
+                    {item.children.map((child, i) => {
+                      const childActive =
+                        child.path &&
+                        (location.pathname === child.path || location.pathname.startsWith(child.path + "/"));
+
+                      return (
+                        <ListItemButton
+                          key={i}
+                          component={Link}
+                          to={child.path}
+                          onClick={() => {
+                            // clicking a child should NOT close the parent menu (per requirement)
+                            if (mobileOpen) setMobileOpen(false);
+                            // do NOT collapse or close parent; only close when another parent clicked
+                          }}
+                          sx={{
+                            mb: 0.5,
+                            py: 1,
+                            borderRadius: "10px",
+                            color: childActive ? "#1e3a8a" : "#475569",
+                            background: childActive ? "rgba(30,58,138,0.12)" : "transparent",
+                            "&:hover": { background: "rgba(30,58,138,0.06)" },
+                          }}
+                        >
+                          <ListItemIcon sx={{ minWidth: 36, color: childActive ? "#1e3a8a" : "#94a3b8" }}>
+                            {child.icon || <FiberManualRecordIcon sx={{ fontSize: 12 }} />}
+                          </ListItemIcon>
+
+                          <ListItemText
+                            primary={child.label}
+                            primaryTypographyProps={{
+                              sx: { fontSize: 14, fontWeight: childActive ? 700 : 500 },
+                            }}
+                          />
+                        </ListItemButton>
+                      );
+                    })}
+                  </List>
+                )}
+
+                {/* Collapsed: Popper showing clickable submenu */}
+                {collapsed && (
+                  <Popper
+                    open={popperOpen && popperMenuLabel === item.label}
+                    anchorEl={popperAnchor}
+                    placement="right-start"
+                    disablePortal={false}
+                    style={{ zIndex: 1300 }}
+                  >
+                    <ClickAwayListener onClickAway={closePopperImmediately}>
+                      <Paper
+                        onMouseEnter={() => {
+                          // keep open while hovering popper
+                          if (popperTimeoutRef.current) {
+                            clearTimeout(popperTimeoutRef.current);
+                            popperTimeoutRef.current = null;
+                          }
+                          setPopperOpen(true);
+                        }}
+                        onMouseLeave={() => {
+                          scheduleClosePopper();
+                        }}
+                        sx={{ minWidth: 200, boxShadow: "0 6px 18px rgba(15,23,42,0.12)" }}
+                      >
+                        <List>
+                          <Box sx={{ px: 1, py: 0.5 }}>
+                            <Typography sx={{ fontWeight: 500, fontSize: 13, color: "#475569", px: 1 }}>
+                              {item.label}
+                            </Typography>
+                          </Box>
+                          {item.children.map((child, i) => {
+                            const childActive =
+                              child.path &&
+                              (location.pathname === child.path || location.pathname.startsWith(child.path + "/"));
+
+                            return (
+                              <ListItemButton
+                                key={i}
+                                component={Link}
+                                to={child.path}
+                                onClick={() => {
+                                  // close popper after click
+                                  closePopperImmediately();
+                                  if (mobileOpen) setMobileOpen(false);
+                                }}
+                                sx={{
+                                  mb: 0.2,
+                                  py: 1,
+                                  px: 2,
+                                  borderRadius: "8px",
+                                  color: childActive ? "#1e3a8a" : "#475569",
+                                  background: childActive ? "rgba(30,58,138,0.06)" : "transparent",
+                                  "&:hover": { background: "rgba(30,58,138,0.06)" },
+                                }}
+                              >
+                                <ListItemIcon sx={{ minWidth: 36, color: childActive ? "#1e3a8a" : "#94a3b8" }}>
+                                  {child.icon || <FiberManualRecordIcon sx={{ fontSize: 12 }} />}
+                                </ListItemIcon>
+
+                                <ListItemText
+                                  primary={child.label}
+                                  primaryTypographyProps={{
+                                    sx: { fontSize: 14, fontWeight: childActive ? 700 : 500 },
+                                  }}
+                                />
+                              </ListItemButton>
+                            );
+                          })}
+                        </List>
+                      </Paper>
+                    </ClickAwayListener>
+                  </Popper>
+                )}
+              </Box>
             );
           })}
         </List>
@@ -307,18 +656,15 @@ export default function Sidebar({
         }}
       >
         {!collapsed && (
-          <Typography
-            variant="body2"
-            sx={{ mb: 1, color: "#94a3b8", fontSize: 13 }}
-          >
-            © 2025 SJD Portal
+          <Typography variant="body2" sx={{ mb: 1, color: "#94a3b8", fontSize: 13 }}>
+            © {new Date().getFullYear()} SJD Portal
           </Typography>
         )}
       </Box>
     </Box>
   );
 
-  // 📱 Return both desktop and mobile versions
+  // Desktop + Mobile drawers
   return (
     <>
       {/* Desktop Sidebar */}

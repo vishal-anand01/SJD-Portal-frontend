@@ -15,7 +15,6 @@ import {
 } from "@mui/material";
 import { Row, Col } from "react-bootstrap";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import CategoryIcon from "@mui/icons-material/Category";
 import RoomIcon from "@mui/icons-material/Room";
 import DescriptionIcon from "@mui/icons-material/Description";
 import TitleIcon from "@mui/icons-material/Title";
@@ -37,7 +36,6 @@ export default function AddComplaint() {
     citizenMobile: "",
     citizenDob: "",
     title: "",
-    category: "",
     description: "",
     location: "",
     village: "",
@@ -55,28 +53,38 @@ export default function AddComplaint() {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
-  const categories = [
-    "Electricity",
-    "Road & Infrastructure",
-    "Water Supply",
-    "Garbage / Cleanliness",
-    "Public Safety",
-    "Health & Sanitation",
-    "Education",
-    "Transport",
-    "Agriculture",
-    "Others",
+  // ✅ Example districts list (Uttarakhand)
+  const districts = [
+    "Almora",
+    "Bageshwar",
+    "Chamoli",
+    "Champawat",
+    "Dehradun",
+    "Haridwar",
+    "Nainital",
+    "Pauri Garhwal",
+    "Pithoragarh",
+    "Rudraprayag",
+    "Tehri Garhwal",
+    "Udham Singh Nagar",
+    "Uttarkashi",
   ];
 
   // ⏰ Live clock
   useEffect(() => {
-    const timer = setInterval(() => setDateTime(format(new Date(), "PPpp")), 1000);
+    const timer = setInterval(
+      () => setDateTime(format(new Date(), "PPpp")),
+      1000
+    );
     return () => clearInterval(timer);
   }, []);
 
   // 🎯 Input Handlers
-  const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  const handleFileChange = (e) => setForm({ ...form, attachment: e.target.files[0] });
+  const handleChange = (e) =>
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+
+  const handleFileChange = (e) =>
+    setForm((prev) => ({ ...prev, attachment: e.target.files[0] }));
 
   // 🚀 Submit Complaint
   const handleSubmit = async (e) => {
@@ -88,8 +96,11 @@ export default function AddComplaint() {
     try {
       const formData = new FormData();
       Object.keys(form).forEach((key) => {
-        if (key === "attachment" && form[key]) formData.append("attachment", form[key]);
-        else formData.append(key, form[key]);
+        if (key === "attachment" && form[key]) {
+          formData.append("attachment", form[key]);
+        } else {
+          formData.append(key, form[key]);
+        }
       });
 
       const { data } = await axios.post("/public/complaints", formData, {
@@ -105,7 +116,6 @@ export default function AddComplaint() {
           citizenMobile: "",
           citizenDob: "",
           title: "",
-          category: "",
           description: "",
           location: "",
           village: "",
@@ -122,7 +132,9 @@ export default function AddComplaint() {
       }
     } catch (err) {
       console.error("❌ Error submitting complaint:", err);
-      setError(err?.response?.data?.message || "Server error during submission");
+      setError(
+        err?.response?.data?.message || "Server error during submission"
+      );
     } finally {
       setLoading(false);
     }
@@ -249,7 +261,7 @@ export default function AddComplaint() {
               <Row className="gy-4">
                 <Col md={12}>
                   <TextField
-                    label="Complaint Title"
+                    label="Subject"
                     name="title"
                     value={form.title}
                     onChange={handleChange}
@@ -263,31 +275,6 @@ export default function AddComplaint() {
                       ),
                     }}
                   />
-                </Col>
-
-                <Col md={6}>
-                  <TextField
-                    select
-                    label="Category"
-                    name="category"
-                    value={form.category}
-                    onChange={handleChange}
-                    fullWidth
-                    required
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <CategoryIcon color="primary" />
-                        </InputAdornment>
-                      ),
-                    }}
-                  >
-                    {categories.map((cat) => (
-                      <MenuItem key={cat} value={cat}>
-                        {cat}
-                      </MenuItem>
-                    ))}
-                  </TextField>
                 </Col>
 
                 <Col md={6}>
@@ -360,13 +347,16 @@ export default function AddComplaint() {
                   />
                 </Col>
 
+                {/* 🌍 District Select */}
                 <Col md={6}>
                   <TextField
+                    select
                     label="District"
                     name="district"
                     value={form.district}
                     onChange={handleChange}
                     fullWidth
+                    required
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
@@ -374,7 +364,13 @@ export default function AddComplaint() {
                         </InputAdornment>
                       ),
                     }}
-                  />
+                  >
+                    {districts.map((dist) => (
+                      <MenuItem key={dist} value={dist}>
+                        {dist}
+                      </MenuItem>
+                    ))}
+                  </TextField>
                 </Col>
 
                 <Col md={6}>
@@ -464,7 +460,12 @@ export default function AddComplaint() {
                     }}
                   >
                     Upload Attachment (optional)
-                    <input type="file" name="attachment" hidden onChange={handleFileChange} />
+                    <input
+                      type="file"
+                      name="attachment"
+                      hidden
+                      onChange={handleFileChange}
+                    />
                   </Button>
                   {form.attachment && (
                     <Typography variant="body2" sx={{ mt: 1 }}>
@@ -502,7 +503,10 @@ export default function AddComplaint() {
                   >
                     {loading ? (
                       <>
-                        <CircularProgress size={22} sx={{ color: "white", mr: 1 }} />
+                        <CircularProgress
+                          size={22}
+                          sx={{ color: "white", mr: 1 }}
+                        />
                         Submitting...
                       </>
                     ) : (

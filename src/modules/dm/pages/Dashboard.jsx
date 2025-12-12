@@ -23,6 +23,7 @@ import { motion } from "framer-motion";
 import axios from "../../../api/axiosConfig";
 import ToastAlert from "../../../components/notifications/ToastAlert";
 import "bootstrap/dist/css/bootstrap.min.css";
+import TrackComplaintDialog from "../../dm/models/TrackComplaintDialog";
 import {
   ResponsiveContainer,
   PieChart,
@@ -54,6 +55,11 @@ export default function DMDashboard() {
   const [stats, setStats] = useState({});
   const [complaints, setComplaints] = useState([]);
 
+  const [selectedComplaint, setSelectedComplaint] = useState(null);
+  const [dialog, setDialog] = useState({ open: false, type: "" });
+
+  const closeDialog = () => setDialog({ open: false, type: "" });
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -75,7 +81,8 @@ export default function DMDashboard() {
 
   const statusCounts = useMemo(() => {
     const map = {};
-    if (Array.isArray(stats?.byStatus)) stats.byStatus.forEach((s) => (map[s._id] = s.count));
+    if (Array.isArray(stats?.byStatus))
+      stats.byStatus.forEach((s) => (map[s._id] = s.count));
     map.Total = stats.totalComplaints || 0;
     map.Resolved = map.Resolved || stats.resolved || 0;
     map["In Progress"] = map["In Progress"] || stats.inProgress || 0;
@@ -153,7 +160,10 @@ export default function DMDashboard() {
     const map = {};
     (complaints || []).forEach((c) => {
       const d = new Date(c.createdAt);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+        2,
+        "0"
+      )}`;
       map[key] = (map[key] || 0) + 1;
     });
     return Object.keys(map)
@@ -169,7 +179,6 @@ export default function DMDashboard() {
     });
     return Object.entries(map).map(([name, count]) => ({ name, count }));
   }, [complaints]);
-
 
   return (
     <Box className="container-fluid py-4">
@@ -253,16 +262,36 @@ export default function DMDashboard() {
       <div className="row g-3 mt-4">
         {/* Pie */}
         <div className="col-md-4 col-sm-12">
-          <Card sx={{ borderRadius: 3, boxShadow: "0 3px 10px rgba(0,0,0,0.1)", height: 360 }}>
+          <Card
+            sx={{
+              borderRadius: 3,
+              boxShadow: "0 3px 10px rgba(0,0,0,0.1)",
+              height: 360,
+            }}
+          >
             <CardContent>
-              <Typography variant="h6" fontWeight={800} color="#1e3a8a" textAlign="center">
+              <Typography
+                variant="h6"
+                fontWeight={800}
+                color="#1e3a8a"
+                textAlign="center"
+              >
                 🥧 Complaint Status Breakdown
               </Typography>
               <ResponsiveContainer width="100%" height={240}>
                 <PieChart>
-                  <Pie data={pieData} dataKey="value" nameKey="name" outerRadius={80} label>
+                  <Pie
+                    data={pieData}
+                    dataKey="value"
+                    nameKey="name"
+                    outerRadius={80}
+                    label
+                  >
                     {pieData.map((entry, idx) => (
-                      <Cell key={idx} fill={STATUS_COLOR[entry.name] || STATUS_COLOR.default} />
+                      <Cell
+                        key={idx}
+                        fill={STATUS_COLOR[entry.name] || STATUS_COLOR.default}
+                      />
                     ))}
                   </Pie>
                   <RechartsTooltip />
@@ -274,18 +303,41 @@ export default function DMDashboard() {
 
         {/* Line */}
         <div className="col-md-4 col-sm-12">
-          <Card sx={{ borderRadius: 3, boxShadow: "0 3px 10px rgba(0,0,0,0.1)", height: 360 }}>
+          <Card
+            sx={{
+              borderRadius: 3,
+              boxShadow: "0 3px 10px rgba(0,0,0,0.1)",
+              height: 360,
+            }}
+          >
             <CardContent>
-              <Typography variant="h6" fontWeight={800} color="#1e3a8a" textAlign="center">
+              <Typography
+                variant="h6"
+                fontWeight={800}
+                color="#1e3a8a"
+                textAlign="center"
+              >
                 📈 Monthly Complaints Trend
               </Typography>
               <ResponsiveContainer width="100%" height={240}>
-                <LineChart data={monthlySeries.length ? monthlySeries : [{ name: "No data", count: 0 }]}>
+                <LineChart
+                  data={
+                    monthlySeries.length
+                      ? monthlySeries
+                      : [{ name: "No data", count: 0 }]
+                  }
+                >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis />
                   <RechartsTooltip />
-                  <Line type="monotone" dataKey="count" stroke="#1e3a8a" strokeWidth={3} dot />
+                  <Line
+                    type="monotone"
+                    dataKey="count"
+                    stroke="#1e3a8a"
+                    strokeWidth={3}
+                    dot
+                  />
                 </LineChart>
               </ResponsiveContainer>
             </CardContent>
@@ -294,18 +346,40 @@ export default function DMDashboard() {
 
         {/* Bar */}
         <div className="col-md-4 col-sm-12">
-          <Card sx={{ borderRadius: 3, boxShadow: "0 3px 10px rgba(0,0,0,0.1)", height: 360 }}>
+          <Card
+            sx={{
+              borderRadius: 3,
+              boxShadow: "0 3px 10px rgba(0,0,0,0.1)",
+              height: 360,
+            }}
+          >
             <CardContent>
-              <Typography variant="h6" fontWeight={800} color="#1e3a8a" textAlign="center">
+              <Typography
+                variant="h6"
+                fontWeight={800}
+                color="#1e3a8a"
+                textAlign="center"
+              >
                 📊 Category-Wise Complaints
               </Typography>
               <ResponsiveContainer width="100%" height={240}>
-                <BarChart data={categorySeries.length ? categorySeries : [{ name: "No data", count: 0 }]}>
+                <BarChart
+                  data={
+                    categorySeries.length
+                      ? categorySeries
+                      : [{ name: "No data", count: 0 }]
+                  }
+                >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis />
                   <RechartsTooltip />
-                  <Bar dataKey="count" fill="#f59e0b" radius={[6, 6, 0, 0]} barSize={35} />
+                  <Bar
+                    dataKey="count"
+                    fill="#f59e0b"
+                    radius={[6, 6, 0, 0]}
+                    barSize={35}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -316,7 +390,13 @@ export default function DMDashboard() {
       {/* ===== Recent Complaints ===== */}
       <div className="row mt-5">
         <div className="col-12">
-          <Card sx={{ borderRadius: 3, boxShadow: "0 4px 15px rgba(0,0,0,0.1)", overflow: "hidden" }}>
+          <Card
+            sx={{
+              borderRadius: 3,
+              boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
+              overflow: "hidden",
+            }}
+          >
             <Box
               sx={{
                 px: 3,
@@ -339,13 +419,17 @@ export default function DMDashboard() {
             <CardContent sx={{ p: 0 }}>
               <TableContainer component={Paper} sx={{ boxShadow: "none" }}>
                 <Table size="small">
-                  <TableHead sx={{ background: "linear-gradient(to right, #eff6ff, #e0e7ff)" }}>
+                  <TableHead
+                    sx={{
+                      background: "linear-gradient(to right, #eff6ff, #e0e7ff)",
+                    }}
+                  >
                     <TableRow>
                       <TableCell>#</TableCell>
                       <TableCell>Tracking ID</TableCell>
                       <TableCell>Citizen</TableCell>
-                      <TableCell>Title</TableCell>
-                      <TableCell>Category</TableCell>
+                      <TableCell>Subject</TableCell>
+                  
                       <TableCell>Status</TableCell>
                       <TableCell>Date</TableCell>
                     </TableRow>
@@ -353,25 +437,44 @@ export default function DMDashboard() {
                   <TableBody>
                     {complaints.length ? (
                       complaints.slice(0, 5).map((c, index) => (
-                        <TableRow key={c._id} hover sx={{ "&:hover": { bgcolor: "#f1f5f9" } }}>
+                        <TableRow
+                          key={c._id}
+                          hover
+                          sx={{ "&:hover": { bgcolor: "#f1f5f9" } }}
+                        >
                           <TableCell>{index + 1}</TableCell>
-                          <TableCell sx={{ fontWeight: 600, color: "#1e3a8a" }}>
-                            {c.trackingId || "N/A"}
+
+                          <TableCell
+                            sx={{
+                              fontWeight: 600,
+                              color: "#1e40af",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => {
+                              setSelectedComplaint(c);
+                              setDialog({ open: true, type: "track" });
+                            }}
+                          >
+                            {c.trackingId}
                           </TableCell>
+
                           <TableCell>
                             {c.citizenName ||
-                              `${c.citizen?.firstName || ""} ${c.citizen?.lastName || ""}` ||
+                              `${c.citizen?.firstName || ""} ${
+                                c.citizen?.lastName || ""
+                              }` ||
                               "N/A"}
                           </TableCell>
                           <TableCell>{c.title || "N/A"}</TableCell>
-                          <TableCell>{c.category || "N/A"}</TableCell>
+                    
                           <TableCell>
                             <Chip
                               label={c.status}
                               size="small"
                               sx={{
                                 bgcolor:
-                                  STATUS_COLOR[c.status] || STATUS_COLOR.default,
+                                  STATUS_COLOR[c.status] ||
+                                  STATUS_COLOR.default,
                                 color: "#fff",
                                 fontWeight: 600,
                               }}
@@ -407,7 +510,10 @@ export default function DMDashboard() {
                 bgcolor: "#f8fafc",
               }}
             >
-              <Typography variant="caption" sx={{ color: "#64748b", fontWeight: 500 }}>
+              <Typography
+                variant="caption"
+                sx={{ color: "#64748b", fontWeight: 500 }}
+              >
                 Updated on{" "}
                 {new Date().toLocaleString("en-IN", {
                   day: "2-digit",
@@ -421,6 +527,15 @@ export default function DMDashboard() {
           </Card>
         </div>
       </div>
+
+      {dialog.open && dialog.type === "track" && selectedComplaint && (
+        <TrackComplaintDialog
+          open={dialog.open}
+          onClose={closeDialog}
+          trackingId={selectedComplaint.trackingId}
+          complaint={selectedComplaint} // ⭐ recommended: full data send kar do
+        />
+      )}
 
       <Divider sx={{ my: 4 }} />
       <Typography variant="body2" color="text.secondary" align="center">

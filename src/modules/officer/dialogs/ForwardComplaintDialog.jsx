@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -10,6 +10,8 @@ import {
   MenuItem,
   TextField,
   Button,
+  Typography,
+  Box,
 } from "@mui/material";
 import axios from "../../../api/axiosConfig";
 
@@ -19,45 +21,87 @@ export default function ForwardComplaintDialog({
   onClose,
   refreshComplaints,
 }) {
-  const departments = [
-    { _id: "dept1", name: "Public Works Department" },
-    { _id: "dept2", name: "Water Supply Department" },
-  ];
-  const officers = [
-    { _id: "off1", name: "Rakesh Kumar" },
-    { _id: "off2", name: "Anita Sharma" },
-  ];
+  const [departments, setDepartments] = useState([]);
+  const [officers, setOfficers] = useState([]);
 
   const [form, setForm] = useState({
     forwardType: "",
     forwardTo: "",
     remarks: "",
-    attachment: null,
   });
+
+  const [attachment, setAttachment] = useState(null);
+  const [fileError, setFileError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleForward = async () => {
+  // Load data
+  useEffect(() => {
+    if (open) {
+      loadDepartments();
+      loadOfficers();
+      setForm({ forwardType: "", forwardTo: "", remarks: "" });
+      setAttachment(null);
+      setFileError("");
+    }
+  }, [open]);
+
+  const loadDepartments = async () => {
     try {
-      if (!form.forwardType || !form.forwardTo)
-        return alert("Please select forward type and receiver");
+      const { data } = await axios.get("/officer/departments");
+      setDepartments(data.departments);
+    } catch (err) {
+      console.error("Failed to load departments:", err);
+    }
+  };
 
-      setLoading(true);
-      const formData = new FormData();
-      formData.append("forwardTo", `${form.forwardType}:${form.forwardTo}`);
-      formData.append("remarks", form.remarks);
-      if (form.attachment) formData.append("attachment", form.attachment);
+  const loadOfficers = async () => {
+    try {
+      const { data } = await axios.get("/officer/officers");
+      setOfficers(data.officers);
+    } catch (err) {
+      console.error("Failed to load officers:", err);
+    }
+  };
 
-      await axios.put(
-        `/officer/complaints/${complaint._id}/forward`,
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
+  // FILE SELECT HANDLER
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    setAttachment(null);
+    setFileError("");
+
+    if (!file) return;
+
+    // Only image or PDF allowed
+    if (!file.type.includes("image") && !file.type.includes("pdf")) {
+      setFileError("Only images or PDF files allowed!");
+      return;
+    }
+
+    setAttachment(file);
+  };
+
+  // SUBMIT
+  const handleForward = async () => {
+    if (!form.forwardType || !form.forwardTo) {
+      alert("Please select forward type & receiver!");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const fd = new FormData();
+      fd.append("forwardTo", `${form.forwardType}:${form.forwardTo}`);
+      fd.append("remarks", form.remarks);
+      if (attachment) fd.append("attachment", attachment);
+
+      await axios.put(`/officer/complaints/${complaint._id}/forward`, fd);
 
       refreshComplaints();
       onClose();
     } catch (error) {
       console.error("Error forwarding complaint:", error);
-      alert("Forwarding failed.");
+      alert("Forwarding failed!");
     } finally {
       setLoading(false);
     }
@@ -67,7 +111,7 @@ export default function ForwardComplaintDialog({
     <Dialog open={open} fullWidth maxWidth="sm" onClose={onClose}>
       <DialogTitle
         sx={{
-          background: "linear-gradient(90deg,#1e3a8a 0%,#2563eb 50%,#38bdf8 100%)",
+          background: "linear-gradient(90deg,#1e3a8a,#2563eb,#38bdf8)",
           color: "white",
           textAlign: "center",
           fontWeight: 700,
@@ -77,6 +121,7 @@ export default function ForwardComplaintDialog({
       </DialogTitle>
 
       <DialogContent dividers>
+        {/* Forward Type */}
         <FormControl fullWidth sx={{ mt: 2 }}>
           <InputLabel>Forward Type</InputLabel>
           <Select
@@ -91,44 +136,43 @@ export default function ForwardComplaintDialog({
           </Select>
         </FormControl>
 
+        {/* Officer List */}
         {form.forwardType === "officer" && (
           <FormControl fullWidth sx={{ mt: 2 }}>
             <InputLabel>Select Officer</InputLabel>
             <Select
               label="Select Officer"
               value={form.forwardTo}
-              onChange={(e) =>
-                setForm({ ...form, forwardTo: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, forwardTo: e.target.value })}
             >
               {officers.map((o) => (
                 <MenuItem key={o._id} value={o._id}>
-                  👮 {o.name}
+                  👮 {o.firstName} {o.lastName}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
         )}
 
+        {/* Department List */}
         {form.forwardType === "department" && (
           <FormControl fullWidth sx={{ mt: 2 }}>
             <InputLabel>Select Department</InputLabel>
             <Select
               label="Select Department"
               value={form.forwardTo}
-              onChange={(e) =>
-                setForm({ ...form, forwardTo: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, forwardTo: e.target.value })}
             >
               {departments.map((d) => (
                 <MenuItem key={d._id} value={d._id}>
-                  🏛️ {d.name}
+                  🏛️ {d.departmentName || `${d.firstName} ${d.lastName}`}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
         )}
 
+        {/* Remarks */}
         <TextField
           fullWidth
           label="Remarks"
@@ -139,17 +183,42 @@ export default function ForwardComplaintDialog({
           onChange={(e) => setForm({ ...form, remarks: e.target.value })}
         />
 
+        {/* FILE UPLOAD */}
         <Button variant="outlined" component="label" sx={{ mt: 2 }}>
           Upload Attachment
           <input
             hidden
             type="file"
             accept="image/*,application/pdf"
-            onChange={(e) =>
-              setForm({ ...form, attachment: e.target.files[0] })
-            }
+            onChange={handleFileSelect}
           />
         </Button>
+
+        {/* SHOW FILE NAME OR ERROR */}
+        {attachment && (
+          <Typography sx={{ mt: 1, color: "green", fontSize: "14px" }}>
+            ✔ Attached: {attachment.name}
+          </Typography>
+        )}
+
+        {fileError && (
+          <Typography sx={{ mt: 1, color: "red", fontSize: "14px" }}>
+            ❌ {fileError}
+          </Typography>
+        )}
+
+        {/* Remove File Button */}
+        {attachment && (
+          <Box sx={{ mt: 1 }}>
+            <Button
+              color="error"
+              size="small"
+              onClick={() => setAttachment(null)}
+            >
+              Remove File
+            </Button>
+          </Box>
+        )}
       </DialogContent>
 
       <DialogActions sx={{ justifyContent: "center" }}>

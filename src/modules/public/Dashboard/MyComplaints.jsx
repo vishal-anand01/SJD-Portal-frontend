@@ -58,30 +58,62 @@ export default function MyComplaints() {
   useEffect(() => {
     const fetchComplaints = async () => {
       try {
-        // ✅ Check if user is logged in
         if (user) {
+          // 1️⃣ Pehle logged-in wale complaints
           const { data } = await axios.get("/complaints");
-          setComplaints(data?.complaints || []);
+          let list = data?.complaints || [];
+
+          // 2️⃣ Agar list khali ho, to mobile se bhi try karo
+          if (!list.length) {
+            let mobile = (
+              user.phone ||
+              localStorage.getItem("publicMobile") ||
+              ""
+            ).trim();
+
+            if (!mobile) {
+              const inputMobile = prompt(
+                "Enter your registered mobile number to view complaints:"
+              );
+              if (inputMobile) {
+                mobile = inputMobile.trim();
+                localStorage.setItem("publicMobile", mobile);
+              }
+            }
+
+            if (mobile) {
+              const { data: data2 } = await axios.get(
+                `/public/complaints/${mobile}`
+              );
+              list = data2?.complaints || [];
+            }
+          }
+
+          setComplaints(list);
         } else {
-          // 🔹 If not logged in, use localStorage or prompt
-          const mobile = localStorage.getItem("publicMobile");
+          // 🔹 Pure public user (not logged in)
+          let mobile = (localStorage.getItem("publicMobile") || "").trim();
+
           if (!mobile) {
             const inputMobile = prompt(
               "Enter your registered mobile number to view complaints:"
             );
-            if (inputMobile) localStorage.setItem("publicMobile", inputMobile);
+            if (inputMobile) {
+              mobile = inputMobile.trim();
+              localStorage.setItem("publicMobile", mobile);
+            }
           }
 
-          const finalMobile = localStorage.getItem("publicMobile");
-          if (finalMobile) {
-            const { data } = await axios.get(
-              `/public/complaints/${finalMobile}`
-            );
+          if (mobile) {
+            const { data } = await axios.get(`/public/complaints/${mobile}`);
             setComplaints(data?.complaints || []);
+          } else {
+            setComplaints([]);
           }
         }
       } catch (err) {
         console.error("❌ Error fetching complaints:", err);
+        setComplaints([]);
       } finally {
         setLoading(false);
       }
@@ -249,9 +281,7 @@ export default function MyComplaints() {
                   <TableCell sx={{ color: "white", fontWeight: 700 }}>
                     Title
                   </TableCell>
-                  <TableCell sx={{ color: "white", fontWeight: 700 }}>
-                    Category
-                  </TableCell>
+                 
                   <TableCell sx={{ color: "white", fontWeight: 700 }}>
                     Location
                   </TableCell>
@@ -278,7 +308,7 @@ export default function MyComplaints() {
                       #{c.trackingId}
                     </TableCell>
                     <TableCell>{c.title}</TableCell>
-                    <TableCell>{c.category}</TableCell>
+                    
                     <TableCell>{c.location || "N/A"}</TableCell>
                     <TableCell>
                       <Chip

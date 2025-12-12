@@ -13,7 +13,6 @@ import {
   Paper,
 } from "@mui/material";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
-import CategoryIcon from "@mui/icons-material/Category";
 import PlaceIcon from "@mui/icons-material/Place";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import PersonIcon from "@mui/icons-material/Person";
@@ -27,7 +26,12 @@ import { Row, Col } from "react-bootstrap";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 
-export default function ViewComplaintDialog({ open, complaint, onClose, baseURL }) {
+export default function ViewComplaintDialog({
+  open,
+  complaint,
+  onClose,
+  baseURL,
+}) {
   const [fileError, setFileError] = useState("");
   if (!complaint) return null;
 
@@ -72,7 +76,12 @@ export default function ViewComplaintDialog({ open, complaint, onClose, baseURL 
 
     const citizenData = complaint.citizen
       ? [
-          ["Name", `${complaint.citizen.firstName || ""} ${complaint.citizen.lastName || ""}`],
+          [
+            "Name",
+            `${complaint.citizen.firstName || ""} ${
+              complaint.citizen.lastName || ""
+            }`,
+          ],
           ["Email", complaint.citizen.email || "N/A"],
           ["Phone", complaint.citizen.phone || "N/A"],
           ["Gender", complaint.citizen.gender || "N/A"],
@@ -84,9 +93,11 @@ export default function ViewComplaintDialog({ open, complaint, onClose, baseURL 
           ],
           [
             "Address",
-            `${complaint.citizen.address || ""}, ${complaint.citizen.city || ""}, ${
-              complaint.citizen.state || ""
-            }, ${complaint.citizen.country || ""} ${complaint.citizen.pincode || ""}`,
+            `${complaint.citizen.address || ""}, ${
+              complaint.citizen.city || ""
+            }, ${complaint.citizen.state || ""}, ${
+              complaint.citizen.country || ""
+            } ${complaint.citizen.pincode || ""}`,
           ],
         ]
       : [
@@ -129,7 +140,9 @@ export default function ViewComplaintDialog({ open, complaint, onClose, baseURL 
         body: [
           [
             "Officer Name",
-            `${complaint.filedBy.firstName || ""} ${complaint.filedBy.lastName || ""}`,
+            `${complaint.filedBy.firstName || ""} ${
+              complaint.filedBy.lastName || ""
+            }`,
           ],
           ["Email", complaint.filedBy.email || "N/A"],
           ["Role", complaint.filedBy.role || "Officer"],
@@ -149,7 +162,6 @@ export default function ViewComplaintDialog({ open, complaint, onClose, baseURL 
       body: [
         ["Tracking ID", complaint.trackingId],
         ["Title", complaint.title],
-        ["Category", complaint.category],
         ["Location", complaint.location || "N/A"],
         ["Status", complaint.status],
         ["Date", new Date(complaint.createdAt).toLocaleString()],
@@ -160,9 +172,14 @@ export default function ViewComplaintDialog({ open, complaint, onClose, baseURL 
     doc.setFont("helvetica", "bold");
     doc.text("Description", 14, finalY);
     doc.setFont("helvetica", "normal");
-    doc.text(complaint.description || "No description provided.", 14, finalY + 7, {
-      maxWidth: 180,
-    });
+    doc.text(
+      complaint.description || "No description provided.",
+      14,
+      finalY + 7,
+      {
+        maxWidth: 180,
+      }
+    );
 
     doc.save(`${complaint.trackingId}_ComplaintReport.pdf`);
   };
@@ -178,7 +195,8 @@ export default function ViewComplaintDialog({ open, complaint, onClose, baseURL 
       {/* === HEADER === */}
       <DialogTitle
         sx={{
-          background: "linear-gradient(90deg,#1e3a8a 0%,#2563eb 50%,#38bdf8 100%)",
+          background:
+            "linear-gradient(90deg,#1e3a8a 0%,#2563eb 50%,#38bdf8 100%)",
           color: "white",
           textAlign: "center",
           fontWeight: 700,
@@ -214,58 +232,102 @@ export default function ViewComplaintDialog({ open, complaint, onClose, baseURL 
           </Typography>
 
           <Row className="gy-2 gx-3">
-            {isOfficerComplaint ? (
+            {/* ⭐ Officer Filed Complaint */}
+            {isOfficerComplaint && (
               <>
                 <Col md={6}>
                   <Typography variant="body2">
-                    <strong>Name:</strong> {complaint.citizenName || "N/A"}
+                    <strong>Name:</strong> {complaint?.citizenName || "N/A"}
                   </Typography>
                 </Col>
+
                 <Col md={6}>
                   <Typography variant="body2">
-                    <strong>Mobile:</strong> {complaint.citizenMobile || "N/A"}
+                    <strong>Mobile:</strong> {complaint?.citizenMobile || "N/A"}
                   </Typography>
                 </Col>
+
                 <Col md={6}>
                   <Typography variant="body2">
                     <strong>Date of Birth:</strong>{" "}
-                    {complaint.citizenDob
+                    {complaint?.citizenDob
                       ? new Date(complaint.citizenDob).toLocaleDateString()
                       : "N/A"}
                   </Typography>
                 </Col>
+
                 <Col md={6}>
                   <Typography variant="body2">
-                    <strong>Village:</strong> {complaint.village || "N/A"}
+                    <strong>Village:</strong> {complaint?.village || "N/A"}
                   </Typography>
                 </Col>
+
                 <Col md={6}>
                   <Typography variant="body2">
-                    <strong>Tehsil:</strong> {complaint.tehsil || "N/A"}
+                    <strong>Block:</strong> {complaint?.block || "N/A"}
                   </Typography>
                 </Col>
+
                 <Col md={6}>
                   <Typography variant="body2">
-                    <strong>District:</strong> {complaint.district || "N/A"}
+                    <strong>Tehsil:</strong> {complaint?.tehsil || "N/A"}
                   </Typography>
                 </Col>
+
                 <Col md={6}>
                   <Typography variant="body2">
-                    <strong>State:</strong> {complaint.state || "N/A"}
+                    <strong>District:</strong> {complaint?.district || "N/A"}
                   </Typography>
                 </Col>
+
                 <Col md={6}>
                   <Typography variant="body2">
-                    <strong>Pincode:</strong> {complaint.pincode || "N/A"}
+                    <strong>State:</strong> {complaint?.state || "N/A"}
                   </Typography>
                 </Col>
+
+                <Col md={6}>
+                  <Typography variant="body2">
+                    <strong>Pincode:</strong> {complaint?.pincode || "N/A"}
+                  </Typography>
+                </Col>
+
                 <Col md={12}>
                   <Typography variant="body2">
-                    <strong>Landmark:</strong> {complaint.landmark || "N/A"}
+                    <strong>Landmark:</strong> {complaint?.landmark || "N/A"}
                   </Typography>
                 </Col>
               </>
-            ) : (
+            )}
+
+            {/* ⭐ Public Complaint (WITHOUT login) */}
+            {!isOfficerComplaint && !complaint?.citizen && (
+              <>
+                <Col md={6}>
+                  <Typography variant="body2">
+                    <strong>Name:</strong> {complaint?.citizenName || "N/A"}
+                  </Typography>
+                </Col>
+
+                <Col md={6}>
+                  <Typography variant="body2">
+                    <strong>Mobile:</strong> {complaint?.citizenMobile || "N/A"}
+                  </Typography>
+                </Col>
+
+                <Col md={6}>
+                  <Typography variant="body2">
+                    <strong>Date of Birth:</strong>{" "}
+                    {complaint?.citizenDob
+                      ? new Date(complaint.citizenDob).toLocaleDateString()
+                      : "N/A"}
+                  </Typography>
+                </Col>
+              </>
+            )}
+
+            {/* ⭐ Public Complaint logged-in CITIZEN (through User object) */}
+            {!isOfficerComplaint && complaint?.citizen && (
               <>
                 <Col md={6}>
                   <Typography variant="body2">
@@ -275,19 +337,22 @@ export default function ViewComplaintDialog({ open, complaint, onClose, baseURL 
                     }`}
                   </Typography>
                 </Col>
+
                 <Col md={6}>
                   <Typography variant="body2">
-                    <strong>Email:</strong> {complaint.citizen.email || ""}
+                    <strong>Email:</strong> {complaint.citizen.email || "N/A"}
                   </Typography>
                 </Col>
+
                 <Col md={6}>
                   <Typography variant="body2">
-                    <strong>Phone:</strong> {complaint.citizen.phone || ""}
+                    <strong>Phone:</strong> {complaint.citizen.phone || "N/A"}
                   </Typography>
                 </Col>
+
                 <Col md={6}>
                   <Typography variant="body2">
-                    <strong>Gender:</strong> {complaint.citizen.gender || ""}
+                    <strong>Gender:</strong> {complaint.citizen.gender || "N/A"}
                   </Typography>
                 </Col>
               </>
@@ -312,22 +377,54 @@ export default function ViewComplaintDialog({ open, complaint, onClose, baseURL 
               sx={{
                 fontWeight: 700,
                 color: "#1e3a8a",
-                mb: 1,
+                mb: 2,
                 display: "flex",
                 alignItems: "center",
               }}
             >
               <AccountBoxIcon sx={{ mr: 1 }} /> Filed By (Officer)
             </Typography>
-            <Typography variant="body2">
-              <strong>Name:</strong> {`${complaint.filedBy.firstName} ${complaint.filedBy.lastName}`}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Email:</strong> {complaint.filedBy.email}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Role:</strong> {complaint.filedBy.role || "Officer"}
-            </Typography>
+
+            {/* Row Start */}
+            {/* Row Start */}
+            <div className="row gy-2">
+              {/* SJD ID */}
+              <div className="col-md-6">
+                <Typography variant="body2">
+                  <strong>SJD ID:</strong> {complaint.filedBy.uniqueId}
+                </Typography>
+              </div>
+
+              {/* Name */}
+              <div className="col-md-6">
+                <Typography variant="body2">
+                  <strong>Name:</strong>{" "}
+                  {`${complaint.filedBy.firstName} ${complaint.filedBy.lastName}`}
+                </Typography>
+              </div>
+
+              {/* Email */}
+              <div className="col-md-6">
+                <Typography variant="body2">
+                  <strong>Email:</strong> {complaint.filedBy.email}
+                </Typography>
+              </div>
+
+              {/* Phone */}
+              <div className="col-md-6">
+                <Typography variant="body2">
+                  <strong>Phone Number:</strong> {complaint.filedBy.phone}
+                </Typography>
+              </div>
+
+              {/* ⭐ Designation (New) */}
+              <div className="col-md-6">
+                <Typography variant="body2">
+                  <strong>Designation:</strong>{" "}
+                  {complaint.filedBy.designation || "—"}
+                </Typography>
+              </div>
+            </div>
           </Paper>
         )}
 
@@ -353,15 +450,8 @@ export default function ViewComplaintDialog({ open, complaint, onClose, baseURL 
           {complaint.description}
         </Typography>
 
-        {/* === CATEGORY / LOCATION / DATE === */}
+        {/* ===  LOCATION / DATE === */}
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mt: 3 }}>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <CategoryIcon sx={{ color: "#2563eb", mr: 1 }} />
-            <Typography>
-              <strong>Category:</strong> {complaint.category}
-            </Typography>
-          </Box>
-
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <PlaceIcon sx={{ color: "#2563eb", mr: 1 }} />
             <Typography>
@@ -372,11 +462,16 @@ export default function ViewComplaintDialog({ open, complaint, onClose, baseURL 
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <AccessTimeIcon sx={{ color: "#2563eb", mr: 1 }} />
             <Typography>
-              <strong>Date:</strong> {new Date(complaint.createdAt).toLocaleString()}
+              <strong>Date:</strong>{" "}
+              {new Date(complaint.createdAt).toLocaleString()}
             </Typography>
           </Box>
 
-          <Chip label={complaint.status} color={statusColor(complaint.status)} sx={{ fontWeight: 600 }} />
+          <Chip
+            label={complaint.status}
+            color={statusColor(complaint.status)}
+            sx={{ fontWeight: 600 }}
+          />
         </Box>
 
         {/* === ATTACHMENTS === */}

@@ -1,15 +1,27 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
-import DepartmentDashboard from "../modules/department/pages/Dashboard";
-import AssignedComplaints from "../modules/department/pages/AssignedComplaints";
-import UpdateStatus from "../modules/department/pages/UpdateStatus";
+import { Route } from "react-router-dom";
+import DashboardLayout from "../components/layout/DashboardLayout/DashboardLayout";
+
+import {
+  DepartmentDashboard,
+  AssignedComplaints,
+  TrackStatus,
+  DepartmentProfile,
+} from "../modules/department";
+
+export const DepartmentRoutesConfig = [
+  { path: "dashboard", element: <DepartmentDashboard /> },
+  { path: "assigned-complaints", element: <AssignedComplaints /> },
+  { path: "track-status", element: <TrackStatus /> },
+  { path: "profile", element: <DepartmentProfile /> },
+];
 
 export default function DepartmentRoutes() {
   return (
-    <Routes>
-      <Route path="dashboard" element={<DepartmentDashboard />} />
-      <Route path="assigned" element={<AssignedComplaints />} />
-      <Route path="update-status" element={<UpdateStatus />} />
-    </Routes>
+    <Route element={<DashboardLayout role="department" />}>
+      {DepartmentRoutesConfig.map((route, idx) => (
+        <Route key={idx} path={route.path} element={route.element} />
+      ))}
+    </Route>
   );
 }

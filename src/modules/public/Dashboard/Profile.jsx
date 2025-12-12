@@ -4,8 +4,6 @@ import {
   Card,
   Typography,
   Avatar,
-  Button,
-  Divider,
   Box,
   Tooltip,
   TextField,
@@ -13,9 +11,10 @@ import {
 } from "@mui/material";
 import { deepOrange } from "@mui/material/colors";
 import AuthContext from "../../../context/AuthContext";
-import EditIcon from "@mui/icons-material/Edit";
+
 import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
+import PersonIcon from "@mui/icons-material/Person";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import PublicIcon from "@mui/icons-material/Public";
@@ -23,6 +22,10 @@ import VerifiedIcon from "@mui/icons-material/Verified";
 import WcIcon from "@mui/icons-material/Wc";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import PinDropIcon from "@mui/icons-material/PinDrop";
+import BadgeIcon from "@mui/icons-material/Badge";
+import FlagIcon from "@mui/icons-material/Flag";
+import ApartmentIcon from "@mui/icons-material/Apartment";
+
 import "bootstrap/dist/css/bootstrap.min.css";
 
 export default function Profile() {
@@ -55,7 +58,7 @@ export default function Profile() {
             backdropFilter: "blur(10px)",
           }}
         >
-          {/* 🔷 HEADER */}
+          {/* HEADER */}
           <Box
             sx={{
               background:
@@ -66,7 +69,7 @@ export default function Profile() {
             }}
           >
             <Avatar
-              src={user?.avatar || ""}
+              src={user?.photo ? `/uploads/${user.photo}` : ""}
               alt={user?.firstName || "User"}
               sx={{
                 width: 130,
@@ -74,21 +77,21 @@ export default function Profile() {
                 mx: "auto",
                 mb: 2,
                 border: "4px solid white",
-                bgcolor: user?.avatar ? "transparent" : deepOrange[500],
+                bgcolor: user?.photo ? "transparent" : deepOrange[500],
                 fontSize: 45,
                 fontWeight: 700,
               }}
             >
-              {!user?.avatar && initials}
+              {!user?.photo && initials}
             </Avatar>
+
             <Typography variant="h4" sx={{ fontWeight: 800 }}>
               {user?.firstName
                 ? `${user.firstName} ${user?.lastName || ""}`
-                : user?.name || "Guest User"}
+                : "Guest User"}
             </Typography>
-            <Typography variant="body1" sx={{ opacity: 0.9 }}>
-              {user?.role?.toUpperCase() || "PUBLIC USER"}
-            </Typography>
+
+        
 
             {user?.isVerified && (
               <Tooltip title="Verified Account">
@@ -97,7 +100,7 @@ export default function Profile() {
             )}
           </Box>
 
-          {/* 🔶 BODY */}
+          {/* BODY */}
           <Box sx={{ px: { xs: 3, md: 6 }, py: 5 }}>
             <Typography
               variant="h5"
@@ -112,23 +115,36 @@ export default function Profile() {
               Personal Information
             </Typography>
 
-            {/* 🧾 Bootstrap Grid */}
             <div className="row gy-4 gx-4">
+
+              {/* SJD ID */}
+              <div className="col-md-6">
+                <TextField
+                  fullWidth
+                  label="SJD ID"
+                  value={user?.uniqueId || "Not Generated"}
+                  InputProps={{
+                    readOnly: true,
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <BadgeIcon color="success" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </div>
+
               {/* Full Name */}
               <div className="col-md-6">
                 <TextField
                   fullWidth
                   label="Full Name"
-                  value={
-                    user?.firstName
-                      ? `${user.firstName} ${user?.lastName || ""}`
-                      : "N/A"
-                  }
+                  value={`${user?.firstName || ""} ${user?.lastName || ""}` || "N/A"}
                   InputProps={{
                     readOnly: true,
                     startAdornment: (
                       <InputAdornment position="start">
-                        <WcIcon color="primary" />
+                        <PersonIcon color="primary" />
                       </InputAdornment>
                     ),
                   }}
@@ -207,6 +223,74 @@ export default function Profile() {
                 />
               </div>
 
+              {/* Address */}
+              <div className="col-md-6">
+                <TextField
+                  fullWidth
+                  label="Address"
+                  value={user?.address || "Not Provided"}
+                  InputProps={{
+                    readOnly: true,
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <LocationOnIcon color="primary" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </div>
+
+              {/* City */}
+              <div className="col-md-6">
+                <TextField
+                  fullWidth
+                  label="City"
+                  value={user?.city || "Not Provided"}
+                  InputProps={{
+                    readOnly: true,
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <ApartmentIcon color="primary" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </div>
+
+              {/* District */}
+              <div className="col-md-6">
+                <TextField
+                  fullWidth
+                  label="District"
+                  value={user?.district || "Not Provided"}
+                  InputProps={{
+                    readOnly: true,
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <FlagIcon color="primary" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </div>
+
+              {/* State */}
+              <div className="col-md-6">
+                <TextField
+                  fullWidth
+                  label="State"
+                  value={user?.state || "Not Provided"}
+                  InputProps={{
+                    readOnly: true,
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <LocationOnIcon color="primary" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </div>
+
               {/* Country */}
               <div className="col-md-6">
                 <TextField
@@ -218,27 +302,6 @@ export default function Profile() {
                     startAdornment: (
                       <InputAdornment position="start">
                         <PublicIcon color="primary" />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </div>
-
-              {/* Address */}
-              <div className="col-md-6">
-                <TextField
-                  fullWidth
-                  label="Address"
-                  value={
-                    user?.address
-                      ? `${user.address}, ${user?.city || ""}, ${user?.state || ""}`
-                      : "Not Provided"
-                  }
-                  InputProps={{
-                    readOnly: true,
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <LocationOnIcon color="primary" />
                       </InputAdornment>
                     ),
                   }}
@@ -303,6 +366,7 @@ export default function Profile() {
                   }}
                 />
               </div>
+
             </div>
           </Box>
         </Card>

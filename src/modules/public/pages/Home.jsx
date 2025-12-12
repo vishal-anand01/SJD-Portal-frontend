@@ -127,7 +127,7 @@ export default function Home() {
                 transition={{ duration: 0.8 }}
               >
                 <Typography variant="h2" sx={{ fontWeight: 900, mb: 2 }}>
-                  जनता दरबार
+                 सरकार जनता के द्वार
                 </Typography>
                 <Typography variant="h5" sx={{ mb: 3 }}>
                   Citizen Complaint Management System

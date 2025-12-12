@@ -3,10 +3,10 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import PublicRoutes from "./PublicRoutes";
 import AdminRoutes from "./AdminRoutes";
-import DepartmentRoutes from "./DepartmentRoutes";
+import { DepartmentRoutesConfig } from "./DepartmentRoutes";
 import { OfficerRoutesConfig } from "./OfficerRoutes";
 import { DMRoutesConfig } from "./DMRoutes";
-import SuperAdminRoutes from "./SuperAdminRoutes";
+import { SuperAdminRoutesConfig } from "./SuperAdminRoutes";
 import ProtectedRoute from "./ProtectedRoute";
 import RoleBasedLayout from "./RoleBasedLayout";
 
@@ -47,6 +47,22 @@ export default function AppRouter() {
           ))}
         </Route>
 
+        {/* 🏢 Department */}
+        <Route
+          path="/department"
+          element={
+            <ProtectedRoute allowed={["department", "admin", "superadmin"]}>
+              <RoleBasedLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate to="dashboard" replace />} />
+
+          {DepartmentRoutesConfig.map((r) => (
+            <Route key={r.path} path={r.path} element={r.element} />
+          ))}
+        </Route>
+
         {/* 🧑‍💼 Admin */}
         <Route
           path="/admin"
@@ -60,20 +76,7 @@ export default function AppRouter() {
           <Route path="*" element={<AdminRoutes />} />
         </Route>
 
-        {/* 🏢 Department */}
-        <Route
-          path="/department"
-          element={
-            <ProtectedRoute allowed={["department", "admin", "superadmin"]}>
-              <RoleBasedLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="*" element={<DepartmentRoutes />} />
-        </Route>
-
-        {/* 👑 Super Admin */}
+        {/* 👑 SuperAdmin */}
         <Route
           path="/superadmin"
           element={
@@ -82,8 +85,13 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         >
+          {/* Default redirect */}
           <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="*" element={<SuperAdminRoutes />} />
+
+          {/* Auto-map all SuperAdmin routes */}
+          {SuperAdminRoutesConfig.map((r) => (
+            <Route key={r.path} path={r.path} element={r.element} />
+          ))}
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
