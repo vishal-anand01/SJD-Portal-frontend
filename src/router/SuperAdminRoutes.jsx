@@ -9,24 +9,19 @@ import {
   DMList,
   AddDM,
   EditDM,
-  ViewDM,
-
+  DMViewProfile,
   DepartmentList,
   AddDepartment,
   EditDepartment,
   ViewDepartment,
-
   OfficerList,
   AddOfficer,
   EditOfficer,
   ViewOfficer,
-
   PublicList,
   AddPublic,
   EditPublic,
   ViewPublic,
-
-
 } from "../modules/superadmin";
 
 /* ----------------------------------------------------------
@@ -37,11 +32,11 @@ export const SuperAdminRoutesConfig = [
   { path: "dashboard", element: <Dashboard /> },
 
   // DM Management
-  { path: "dm", element: <DMList /> },
+  { path: "dm/list", element: <DMList /> },
   { path: "dm/add", element: <AddDM /> },
   { path: "dm/edit/:id", element: <EditDM /> },
-  { path: "dm/view/:id", element: <ViewDM /> },
-
+ { path: "dm/view/:id", element: <DMViewProfile /> },
+  
   // Department Management
   { path: "departments", element: <DepartmentList /> },
   { path: "departments/add", element: <AddDepartment /> },
@@ -59,8 +54,6 @@ export const SuperAdminRoutesConfig = [
   { path: "public/add", element: <AddPublic /> },
   { path: "public/edit/:id", element: <EditPublic /> },
   { path: "public/view/:id", element: <ViewPublic /> },
-
-  
 ];
 
 /* ----------------------------------------------------------

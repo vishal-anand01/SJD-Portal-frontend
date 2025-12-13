@@ -229,7 +229,7 @@ export default function Sidebar({
       label: "DM Management",
       icon: <SupervisorAccountIcon />,
       children: [
-        { label: "DM List", path: "/superadmin/dm", icon: <ListAltIcon /> },
+        { label: "DM List", path: "/superadmin/dm/list", icon: <ListAltIcon /> },
         { label: "Add DM", path: "/superadmin/dm/add", icon: <AssignmentIcon /> },
       ],
     },

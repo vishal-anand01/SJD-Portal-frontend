@@ -11,7 +11,7 @@ export { default as Dashboard } from "./pages/Dashboard";
 export { default as DMList } from "./pages/DMManagement/DMList";
 export { default as AddDM } from "./pages/DMManagement/AddDM";
 export { default as EditDM } from "./pages/DMManagement/EditDM";
-export { default as ViewDM } from "./pages/DMManagement/ViewDM";
+export { default as DMViewProfile } from "./pages/DMManagement/DMViewProfile";
 
 /* ----------------------------------------------
    DEPARTMENT MANAGEMENT MODULE
