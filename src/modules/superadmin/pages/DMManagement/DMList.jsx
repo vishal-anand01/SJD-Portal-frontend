@@ -184,7 +184,7 @@ export default function DMListTable() {
                 fontWeight: 700,
               }}
             >
-              + New
+              New
             </Button>
           </Stack>
         </Box>

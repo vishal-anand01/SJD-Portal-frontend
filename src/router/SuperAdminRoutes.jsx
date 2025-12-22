@@ -13,7 +13,7 @@ import {
   DepartmentList,
   AddDepartment,
   EditDepartment,
-  ViewDepartment,
+  DepartmentViewProfile,
   OfficerList,
   AddOfficer,
   EditOfficer,
@@ -35,13 +35,13 @@ export const SuperAdminRoutesConfig = [
   { path: "dm/list", element: <DMList /> },
   { path: "dm/add", element: <AddDM /> },
   { path: "dm/edit/:id", element: <EditDM /> },
- { path: "dm/view/:id", element: <DMViewProfile /> },
-  
+  { path: "dm/view/:id", element: <DMViewProfile /> },
+
   // Department Management
   { path: "departments", element: <DepartmentList /> },
   { path: "departments/add", element: <AddDepartment /> },
   { path: "departments/edit/:id", element: <EditDepartment /> },
-  { path: "departments/view/:id", element: <ViewDepartment /> },
+  { path: "departments/view/:id", element: <DepartmentViewProfile /> },
 
   // Officer Management
   { path: "officers", element: <OfficerList /> },

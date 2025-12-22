@@ -41,6 +41,7 @@ export default function DMViewProfile() {
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState("");
 
   const backendBase =
     import.meta.env.VITE_BACKEND_URL || "http://localhost:5000/uploads";
@@ -65,8 +66,15 @@ export default function DMViewProfile() {
   // HANDLE INPUT
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
-    if (type === "file") {
-      setForm((prev) => ({ ...prev, [name]: files?.[0] || null }));
+
+    if (type === "file" && files?.[0]) {
+      const file = files[0];
+
+      setForm((prev) => ({ ...prev, [name]: file }));
+
+      // 🔥 PREVIEW INSTANT
+      const previewUrl = URL.createObjectURL(file);
+      setPhotoPreview(previewUrl);
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
@@ -89,10 +97,10 @@ export default function DMViewProfile() {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      setDM(data.dm || null);
-      setForm(data.dm || {});
+      setDM(data.dm);
+      setForm(data.dm);
+      setPhotoPreview(""); // ✅ reset
       setEditMode(false);
-
       // tiny UX: use native alert for now (your previous pattern)
       alert("✅ DM Profile updated successfully!");
     } catch (err) {
@@ -100,6 +108,20 @@ export default function DMViewProfile() {
       alert("❌ Update failed!");
     } finally {
       setSaving(false);
+    }
+  };
+
+  // DELETE HANDLER (clean & reusable)
+  const handleDeleteUser = async () => {
+    if (!window.confirm("⚠️ Are you sure? DM will be archived.")) return;
+
+    try {
+      await axios.delete(`/superadmin/users/${id}/soft-delete`);
+      alert("✅ DM deleted and archived successfully");
+      window.location.href = "/superadmin/dm";
+    } catch (error) {
+      console.error("❌ Delete error:", error);
+      alert("❌ Delete failed");
     }
   };
 
@@ -154,7 +176,13 @@ export default function DMViewProfile() {
             {/* PROFILE PHOTO */}
             <Box sx={{ position: "relative", display: "inline-block" }}>
               <Avatar
-                src={dm.photo ? `${backendBase}/${dm.photo}` : ""}
+                src={
+                  photoPreview
+                    ? photoPreview // 🔥 upload ke turant baad
+                    : dm.photo
+                    ? `${backendBase}/${dm.photo}?t=${Date.now()}`
+                    : ""
+                }
                 sx={{
                   width: 130,
                   height: 130,
@@ -209,27 +237,33 @@ export default function DMViewProfile() {
             )}
 
             {/* EDIT / SAVE BUTTON */}
-            <Box sx={{ mt: 3 }}>
+
+            <Box
+              sx={{ mt: 3, display: "flex", gap: 2, justifyContent: "center" }}
+            >
               {!editMode ? (
-                <Button
-                  variant="contained"
-                  sx={{
-                    backgroundColor: "#f59e0b",
-                    px: 3,
-                    fontWeight: 700,
-                  }}
-                  onClick={() => setEditMode(true)}
-                >
-                  ✏️ Edit Profile
-                </Button>
+                <>
+                  <Button
+                    variant="contained"
+                    sx={{ backgroundColor: "#f59e0b", fontWeight: 700 }}
+                    onClick={() => setEditMode(true)}
+                  >
+                    ✏️ Edit Profile
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    color="error"
+                    sx={{ fontWeight: 700 }}
+                    onClick={handleDeleteUser}
+                  >
+                    🗑️ Delete
+                  </Button>
+                </>
               ) : (
                 <Button
                   variant="contained"
-                  sx={{
-                    backgroundColor: "#16a34a",
-                    px: 3,
-                    fontWeight: 700,
-                  }}
+                  sx={{ backgroundColor: "#16a34a", fontWeight: 700 }}
                   onClick={handleSave}
                   disabled={saving}
                 >

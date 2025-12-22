@@ -19,7 +19,7 @@ export { default as DMViewProfile } from "./pages/DMManagement/DMViewProfile";
 export { default as DepartmentList } from "./pages/DepartmentManagement/DepartmentList";
 export { default as AddDepartment } from "./pages/DepartmentManagement/AddDepartment";
 export { default as EditDepartment } from "./pages/DepartmentManagement/EditDepartment";
-export { default as ViewDepartment } from "./pages/DepartmentManagement/ViewDepartment";
+export { default as DepartmentViewProfile } from "./pages/DepartmentManagement/DepartmentViewProfile";
 
 /* ----------------------------------------------
    OFFICER MANAGEMENT MODULE
