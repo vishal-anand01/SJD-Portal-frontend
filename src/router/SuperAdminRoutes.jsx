@@ -22,6 +22,7 @@ import {
   AddPublic,
   EditPublic,
   ViewPublic,
+  ComplaintList,
 } from "../modules/superadmin";
 
 /* ----------------------------------------------------------
@@ -54,6 +55,9 @@ export const SuperAdminRoutesConfig = [
   { path: "public/add", element: <AddPublic /> },
   { path: "public/edit/:id", element: <EditPublic /> },
   { path: "public/view/:id", element: <ViewPublic /> },
+
+  // Complaint Management
+  { path: "complaints", element: <ComplaintList /> },
 ];
 
 /* ----------------------------------------------------------

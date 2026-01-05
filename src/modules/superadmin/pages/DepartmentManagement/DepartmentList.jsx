@@ -109,8 +109,7 @@ export default function DepartmentList() {
     return filtered.slice(start, start + rowsPerPage);
   }, [filtered, page, rowsPerPage]);
 
-  const initials = (name = "") =>
-    `${name?.[0] || ""}`.toUpperCase();
+  const initials = (name = "") => `${name?.[0] || ""}`.toUpperCase();
 
   /* ================= EXPORT CSV ================= */
   const exportCSV = () => {
@@ -143,7 +142,7 @@ export default function DepartmentList() {
             p: 3,
             display: "flex",
             alignItems: "center",
-            background: "linear-gradient(90deg,#0ea5e9,#6366f1)",
+            background: "linear-gradient(90deg,#22c55e,#14b8a6)",
             color: "white",
             borderRadius: 3,
           }}
@@ -225,22 +224,17 @@ export default function DepartmentList() {
 
           <Chip
             icon={
-              sortOrder === "asc" ? (
-                <ArrowUpwardIcon />
-              ) : (
-                <ArrowDownwardIcon />
-              )
+              sortOrder === "asc" ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />
             }
             label={sortOrder === "asc" ? "A–Z" : "Z–A"}
             clickable
             color="primary"
-            onClick={() =>
-              setSortOrder((p) => (p === "asc" ? "desc" : "asc"))
-            }
+            onClick={() => setSortOrder((p) => (p === "asc" ? "desc" : "asc"))}
           />
         </Stack>
       </Paper>
 
+      {/* ================= TABLE ================= */}
       {/* ================= TABLE ================= */}
       <TableContainer component={Paper} sx={{ borderRadius: 3 }}>
         <Table stickyHeader>
@@ -248,9 +242,9 @@ export default function DepartmentList() {
             <TableRow>
               <TableCell>#</TableCell>
               <TableCell>Photo</TableCell>
-              <TableCell>SJd ID</TableCell>
+              <TableCell>SJD ID</TableCell>
+              <TableCell>Name / Email</TableCell>
               <TableCell>Department</TableCell>
-              <TableCell>Email</TableCell>
               <TableCell>Phone</TableCell>
               <TableCell>Profile</TableCell>
             </TableRow>
@@ -259,8 +253,10 @@ export default function DepartmentList() {
           <TableBody>
             {visible.map((dept, idx) => (
               <TableRow key={dept._id} hover>
+                {/* # */}
                 <TableCell>{page * rowsPerPage + idx + 1}</TableCell>
 
+                {/* Photo */}
                 <TableCell>
                   <Avatar
                     src={dept.photo ? `${backendBase}/${dept.photo}` : ""}
@@ -272,24 +268,32 @@ export default function DepartmentList() {
                   </Avatar>
                 </TableCell>
 
+                {/* SJD ID */}
                 <TableCell>
-                  <strong>{dept.uniqueId || dept.code}</strong>
+                  <strong>{dept.uniqueId || "—"}</strong>
                 </TableCell>
 
+                {/* Name / Email */}
                 <TableCell>
-                  <Button
-                    onClick={() =>
-                      navigate(`/superadmin/departments/view/${dept._id}`)
-                    }
-                    sx={{ textTransform: "none", fontWeight: 700, p: 0 }}
-                  >
+                  <Typography sx={{ fontWeight: 700, lineHeight: 1.2 }}>
                     {dept.name}
-                  </Button>
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ fontSize: 12 }}
+                  >
+                    {dept.email}
+                  </Typography>
                 </TableCell>
 
-                <TableCell>{dept.email || "—"}</TableCell>
+                {/* Department */}
+                <TableCell>{dept.departmentName || "—"}</TableCell>
+
+                {/* Phone */}
                 <TableCell>{dept.phone || "—"}</TableCell>
 
+                {/* Profile */}
                 <TableCell>
                   <Button
                     size="small"

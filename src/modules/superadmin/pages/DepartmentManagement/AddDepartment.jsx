@@ -132,7 +132,6 @@ export default function AddDepartment() {
         country: form.country || "",
         pincode: form.pincode || "",
         gender: form.gender || "",
-        role: "department", // fixed role
       };
 
       let res;
@@ -148,7 +147,7 @@ export default function AddDepartment() {
         // logo/photo should be field "photo" as per User schema usage in other modules
         fd.append("photo", logoFile);
 
-        res = await axios.post("/superadmin/departments", fd, {
+        res = await axios.post("/superadmin/departments/users", fd, {
           headers: { "Content-Type": "multipart/form-data" },
         });
       } else {
@@ -157,7 +156,7 @@ export default function AddDepartment() {
         if (form.departmentCode) jsonBody.departmentCode = form.departmentCode;
         if (form.description) jsonBody.description = form.description;
 
-        res = await axios.post("/superadmin/departments", jsonBody);
+        res = await axios.post("/superadmin/departments/users", jsonBody);
       }
 
       await Swal.fire(
@@ -300,17 +299,6 @@ export default function AddDepartment() {
                   />
                 </div>
 
-                {/* Department Code (optional) */}
-                <div className="col-md-6">
-                  <TextField
-                    fullWidth
-                    name="departmentCode"
-                    label="Department Code (optional)"
-                    value={form.departmentCode}
-                    onChange={handleChange}
-                  />
-                </div>
-
                 {/* Head First Name */}
                 <div className="col-md-6">
                   <TextField
@@ -339,6 +327,13 @@ export default function AddDepartment() {
                     label="Head Last Name"
                     value={form.headLastName}
                     onChange={handleChange}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <PersonIcon color="primary" />
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </div>
 
@@ -415,6 +410,31 @@ export default function AddDepartment() {
                       ),
                     }}
                   />
+                </div>
+
+                {/* Gender */}
+                <div className="col-md-6">
+                  <TextField
+                    select
+                    fullWidth
+                    name="gender"
+                    label="Head Gender"
+                    value={form.gender}
+                    onChange={handleChange}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <PersonIcon color="primary" />
+                        </InputAdornment>
+                      ),
+                    }}
+                  >
+                    {genderOptions.map((g) => (
+                      <MenuItem key={g.value} value={g.value}>
+                        {g.label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
                 </div>
 
                 {/* Address */}
@@ -515,44 +535,6 @@ export default function AddDepartment() {
                       ),
                     }}
                   />
-                </div>
-
-                {/* Description */}
-                <div className="col-md-12">
-                  <TextField
-                    fullWidth
-                    name="description"
-                    label="Description"
-                    value={form.description}
-                    onChange={handleChange}
-                    multiline
-                    rows={3}
-                  />
-                </div>
-
-                {/* Gender */}
-                <div className="col-md-6">
-                  <TextField
-                    select
-                    fullWidth
-                    name="gender"
-                    label="Head Gender"
-                    value={form.gender}
-                    onChange={handleChange}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <PersonIcon color="primary" />
-                        </InputAdornment>
-                      ),
-                    }}
-                  >
-                    {genderOptions.map((g) => (
-                      <MenuItem key={g.value} value={g.value}>
-                        {g.label}
-                      </MenuItem>
-                    ))}
-                  </TextField>
                 </div>
 
                 {/* Password */}

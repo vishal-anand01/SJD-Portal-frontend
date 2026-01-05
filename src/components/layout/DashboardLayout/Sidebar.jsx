@@ -273,8 +273,8 @@ export default function Sidebar({
       label: "Complaints",
       icon: <ReportIcon />,
       children: [
-        { label: "All Complaints", path: "/superadmin/complaints/all", icon: <ListAltIcon /> },
-        { label: "Track Complaint", path: "/superadmin/complaints/track", icon: <TrackChangesIcon /> },
+        { label: "All Complaints", path: "/superadmin/complaints", icon: <ListAltIcon /> },
+        // { label: "Track Complaint", path: "/superadmin/complaints/track", icon: <TrackChangesIcon /> },
       ],
     },
   ];

@@ -225,18 +225,12 @@ export default function DMListTable() {
 
           <Chip
             icon={
-              sortOrder === "asc" ? (
-                <ArrowUpwardIcon />
-              ) : (
-                <ArrowDownwardIcon />
-              )
+              sortOrder === "asc" ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />
             }
             label={sortOrder === "asc" ? "A–Z" : "Z–A"}
             clickable
             color="primary"
-            onClick={() =>
-              setSortOrder((p) => (p === "asc" ? "desc" : "asc"))
-            }
+            onClick={() => setSortOrder((p) => (p === "asc" ? "desc" : "asc"))}
           />
         </Stack>
       </Paper>
@@ -285,9 +279,7 @@ export default function DMListTable() {
 
                 <TableCell>
                   <Button
-                    onClick={() =>
-                      navigate(`/superadmin/dm/view/${dm._id}`)
-                    }
+                    onClick={() => navigate(`/superadmin/dm/view/${dm._id}`)}
                     sx={{
                       textTransform: "none",
                       fontWeight: 700,
@@ -306,9 +298,7 @@ export default function DMListTable() {
                     size="small"
                     variant="outlined"
                     sx={{ textTransform: "none", borderRadius: 2 }}
-                    onClick={() =>
-                      navigate(`/superadmin/dm/view/${dm._id}`)
-                    }
+                    onClick={() => navigate(`/superadmin/dm/view/${dm._id}`)}
                   >
                     View
                   </Button>
@@ -319,9 +309,7 @@ export default function DMListTable() {
             {visible.length === 0 && (
               <TableRow>
                 <TableCell colSpan={7} align="center" sx={{ py: 6 }}>
-                  <Typography color="text.secondary">
-                    No DMs found
-                  </Typography>
+                  <Typography color="text.secondary">No DMs found</Typography>
                 </TableCell>
               </TableRow>
             )}

@@ -102,11 +102,25 @@ export default function DepartmentViewProfile() {
   /* ================= DELETE ================= */
   const handleDelete = async () => {
     if (!window.confirm("⚠️ Department will be archived. Continue?")) return;
-    await axios.delete(`/superadmin/users/${id}/soft-delete`);
-    alert("✅ Department archived");
-    navigate("/superadmin/departments");
+
+    try {
+      await axios.delete(`/superadmin/users/${id}/soft-delete`);
+      alert("✅ Department archived successfully");
+      navigate("/superadmin/departments");
+    } catch (err) {
+      console.error("Delete failed:", err);
+      alert("❌ Delete failed");
+    }
   };
 
+  const ROLE_OPTIONS = [
+    "department",
+    "officer",
+    "dm",
+    "admin",
+    "superadmin",
+    "public",
+  ];
 
   if (loading)
     return (
@@ -181,7 +195,7 @@ export default function DepartmentViewProfile() {
                 <input
                   type="file"
                   id="dept-logo-edit"
-                  name="logo"
+                  name="photo"
                   accept="image/*"
                   hidden
                   onChange={handleChange}
@@ -192,7 +206,7 @@ export default function DepartmentViewProfile() {
           </Box>
 
           <Typography variant="h4" sx={{ fontWeight: 800 }}>
-            {dept.name}
+            {`${dept.firstName || ""} ${dept.lastName || ""}`.trim()}
           </Typography>
 
           {dept.isVerified && (
@@ -216,18 +230,7 @@ export default function DepartmentViewProfile() {
                   variant="contained"
                   color="error"
                   sx={{ fontWeight: 700 }}
-                  onClick={async () => {
-                    if (!window.confirm("⚠️ Are you sure?")) return;
-                    try {
-                      await axios.delete(
-                        `/superadmin/departments/users/${id}/soft-delete`
-                      );
-                      alert("✅ Department archived");
-                      window.location.href = "/superadmin/departments";
-                    } catch {
-                      alert("❌ Delete failed");
-                    }
-                  }}
+                  onClick={handleDelete}
                 >
                   🗑️ Delete
                 </Button>
@@ -496,6 +499,37 @@ export default function DepartmentViewProfile() {
                   ),
                 }}
               />
+            </div>
+
+            {/* 🔥 ROLE – LAST COLUMN */}
+            <div className="col-md-6">
+              <TextField
+                select
+                fullWidth
+                name="role"
+                label="Role"
+                value={form.role || ""}
+                onChange={handleChange}
+                SelectProps={{
+                  native: true,
+                  disabled: !editMode,
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <WorkIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              >
+                <option value="">Select Role</option>
+                <option value="department">Department</option>
+                <option value="officer">Officer</option>
+                <option value="dm">DM</option>
+                <option value="admin">Admin</option>
+                <option value="superadmin">Super Admin</option>
+                <option value="public">Public</option>
+              </TextField>
             </div>
           </div>
 

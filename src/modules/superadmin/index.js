@@ -36,3 +36,8 @@ export { default as PublicList } from "./pages/PublicManagement/PublicList";
 export { default as AddPublic } from "./pages/PublicManagement/AddPublic";
 export { default as EditPublic } from "./pages/PublicManagement/EditPublic";
 export { default as ViewPublic } from "./pages/PublicManagement/ViewPublic";
+
+/* ----------------------------------------------
+   COMPLAINT MANAGEMENT MODULE
+---------------------------------------------- */
+export { default as ComplaintList } from "./pages/Complaints/ComplaintList";
